@@ -137,7 +137,7 @@ var renderPin = function (data, template) {
   return pin;
 };
 
-/* Генерацмя разметки меток */
+/* Генерация разметки меток */
 var pins = document.createDocumentFragment();
 for (i = 0; i < announcements.length; i++) {
   pins.appendChild(renderPin(announcements[i], templatePin));
