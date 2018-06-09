@@ -88,7 +88,7 @@ var shuffleArr = function (arr) {
 var getAnnouncementsList = function (data, count) {
   var announcements = [];
   var indexes = shuffleArr([1, 2, 3, 4, 5, 6, 7, 8]);
-  for (i = 0; i < count; i++) {
+  for (var j = 0; j < count; j++) {
     var locX = getRandNum(data.limX.min, data.limX.max);
     var locY = getRandNum(data.limY.min, data.limY.max);
     var photos = data.photos.slice();
@@ -98,7 +98,7 @@ var getAnnouncementsList = function (data, count) {
         avatar: data.avatar.pathMask + (id < 10 ? '0' : '') + id + '.' + data.avatar.ext
       },
       offer: {
-        title: data.offerTitles[id],
+        title: data.offerTitles[id - 1],
         address: locX + ', ' + locY,
         price: getRandNum(data.price.min, data.price.max),
         type: getRandElem(Object.keys(data.houseTypes)),
