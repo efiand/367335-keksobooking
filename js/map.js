@@ -92,8 +92,8 @@ var getAnnouncementsList = function (data, count) {
     var locX = getRandNum(data.limX.min, data.limX.max);
     var locY = getRandNum(data.limY.min, data.limY.max);
     var photos = data.photos.slice();
-    var id = indexes[i];
-    announcements[i] = {
+    var id = indexes[j];
+    announcements[j] = {
       author: {
         avatar: data.avatar.pathMask + (id < 10 ? '0' : '') + id + '.' + data.avatar.ext
       },
