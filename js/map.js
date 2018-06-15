@@ -85,9 +85,9 @@ var shuffleArr = function (arr) {
 };
 
 /* Функция генерации массива объявлений */
+var indexes = shuffleArr([1, 2, 3, 4, 5, 6, 7, 8]);
 var getAnnouncementsList = function (data, count) {
   var announcements = [];
-  var indexes = shuffleArr([1, 2, 3, 4, 5, 6, 7, 8]);
   for (var j = 0; j < count; j++) {
     var locX = getRandNum(data.limX.min, data.limX.max);
     var locY = getRandNum(data.limY.min, data.limY.max);
@@ -95,7 +95,7 @@ var getAnnouncementsList = function (data, count) {
     var id = indexes[j];
     announcements[j] = {
       author: {
-        avatar: data.avatar.pathMask + (id < 10 ? '0' : '') + id + '.' + data.avatar.ext
+        avatar: data.avatar.pathMask + (j < 9 ? '0' : '') + (j + 1) + '.' + data.avatar.ext
       },
       offer: {
         title: data.offerTitles[id - 1],
@@ -147,7 +147,8 @@ var addPins = function (data, template) {
 };
 
 /* Генерация разметки меток */
-document.querySelector('.map__pins').appendChild(addPins(announcements, templatePin));
+var mapPins = document.querySelector('.map__pins');
+mapPins.appendChild(addPins(announcements, templatePin));
 
 /* Функция генерации объявления */
 var renderAnnouncement = function (data, template) {
@@ -193,7 +194,53 @@ var renderAnnouncement = function (data, template) {
 
 /* Добавление объявления на карту */
 var map = document.querySelector('.map');
-map.insertBefore(renderAnnouncement(announcements[0], templateContent.querySelector('.map__card')), map.querySelector('.map__filters-container'));
+var mapCardTemplate = templateContent.querySelector('.map__card');
+map.insertBefore(renderAnnouncement(announcements[0], mapCardTemplate), map.querySelector('.map__filters-container'));
+var mapCard = map.querySelector('.map__card');
+mapCard.classList.add('hidden');
+
+/* Показ объявлений по клмку на метки */
+var mapPinsClickHandler = function (evt) {
+  var targetBtn;
+  if (evt.path[1].classList.value === 'map__pin') {
+    targetBtn = evt.path[1];
+  } else if (evt.path[0].classList.value === 'map__pin') {
+    targetBtn = evt.path[0];
+  }
+  if (targetBtn) {
+    var currentIndex = targetBtn.querySelector('img').src.slice(-5, -4) - 1;
+    mapCard.innerHTML = renderAnnouncement(announcements[currentIndex], mapCardTemplate).innerHTML;
+  }
+};
 
 /* Активизация карты */
-map.classList.toggle('map--faded');
+var mainPin = document.querySelector('.map__pin--main');
+var adForm = document.querySelector('.ad-form');
+var adFormGroups = adForm.querySelectorAll('fieldset');
+var setActiveState = function () {
+  if (map.classList.contains('map--faded')) {
+    map.classList.remove('map--faded');
+  }
+  if (adForm.classList.contains('ad-form--disabled')) {
+    adForm.classList.remove('ad-form--disabled');
+  }
+  for (i = 0; i < adFormGroups.length; i++) {
+    if (adFormGroups[i].hasAttribute('disabled')) {
+      adFormGroups[i].removeAttribute('disabled');
+    }
+  }
+  mapCard.classList.remove('hidden');
+};
+
+/* Координаты середины нижнего края круглой метки */
+var addInitCoords = function (evt) {
+  var coordX = evt.pageX + evt.srcElement.clientWidth / 2;
+  var coordY = evt.pageY + evt.srcElement.clientHeight;
+  document.getElementById('address').value = coordX + ', ' + coordY;
+};
+
+mainPin.addEventListener('mouseup', function (evt) {
+  setActiveState();
+  addInitCoords(evt);
+  mapPins.addEventListener('click', mapPinsClickHandler);
+});
