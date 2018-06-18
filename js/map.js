@@ -253,11 +253,19 @@ mainPin.addEventListener('mouseup', function (evt) {
   }
 });
 
+/* Скрытие объявления */
+var closePopupClickHandler = function () {
+  mapCard.classList.add('hidden');
+};
 /* Показ объявлений по клику на метки */
 var addPinListener = function (btn) {
   btn.addEventListener('click', function () {
     var currentIndex = btn.querySelector('img').src.slice(-5, -4) - 1;
     mapCard.innerHTML = renderAnnouncement(announcements[currentIndex], mapCardTemplate).innerHTML;
+    if (mapCard.classList.contains('hidden')) {
+      mapCard.classList.remove('hidden');
+    }
+    mapCard.querySelector('.popup__close').addEventListener('click', closePopupClickHandler);
   });
 };
 for (i = 0; i < mapPinsList.length; i++) {
