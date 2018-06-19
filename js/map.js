@@ -85,9 +85,9 @@ var shuffleArr = function (arr) {
 };
 
 /* Функция генерации массива объявлений */
+var indexes = shuffleArr([1, 2, 3, 4, 5, 6, 7, 8]);
 var getAnnouncementsList = function (data, count) {
   var announcements = [];
-  var indexes = shuffleArr([1, 2, 3, 4, 5, 6, 7, 8]);
   for (var j = 0; j < count; j++) {
     var locX = getRandNum(data.limX.min, data.limX.max);
     var locY = getRandNum(data.limY.min, data.limY.max);
@@ -95,7 +95,7 @@ var getAnnouncementsList = function (data, count) {
     var id = indexes[j];
     announcements[j] = {
       author: {
-        avatar: data.avatar.pathMask + (id < 10 ? '0' : '') + id + '.' + data.avatar.ext
+        avatar: data.avatar.pathMask + (j < 9 ? '0' : '') + (j + 1) + '.' + data.avatar.ext
       },
       offer: {
         title: data.offerTitles[id - 1],
@@ -119,13 +119,6 @@ var getAnnouncementsList = function (data, count) {
   return announcements;
 };
 
-/* Генерация массива объявлений */
-var announcements = getAnnouncementsList(ANNOUNCEMENTS_DATA, ANNOUNCEMENTS_COUNT);
-
-/* Получение шаблона разметки метки */
-var templateContent = document.querySelector('template').content;
-var templatePin = templateContent.querySelector('.map__pin');
-
 /* Функция генерации разметки метки */
 var renderPin = function (data, template) {
   var pin = template.cloneNode(true);
@@ -145,9 +138,6 @@ var addPins = function (data, template) {
   }
   return pins;
 };
-
-/* Генерация разметки меток */
-document.querySelector('.map__pins').appendChild(addPins(announcements, templatePin));
 
 /* Функция генерации объявления */
 var renderAnnouncement = function (data, template) {
@@ -187,13 +177,99 @@ var renderAnnouncement = function (data, template) {
   }
 
   announcement.querySelector('.popup__avatar').src = data.author.avatar;
-
   return announcement;
 };
 
-/* Добавление объявления на карту */
-var map = document.querySelector('.map');
-map.insertBefore(renderAnnouncement(announcements[0], templateContent.querySelector('.map__card')), map.querySelector('.map__filters-container'));
+/* Генерация массива объявлений */
+var announcements = getAnnouncementsList(ANNOUNCEMENTS_DATA, ANNOUNCEMENTS_COUNT);
 
-/* Активизация карты */
-map.classList.toggle('map--faded');
+/* Получение шаблона разметки метки */
+var templateContent = document.querySelector('template').content;
+var templatePin = templateContent.querySelector('.map__pin');
+var mapCardTemplate = templateContent.querySelector('.map__card');
+
+/* Настройки карты */
+var map = document.querySelector('.map');
+var mapPins = document.querySelector('.map__pins');
+var mainPin = document.querySelector('.map__pin--main');
+var adForm = document.querySelector('.ad-form');
+var adFormGroups = adForm.querySelectorAll('fieldset');
+
+/* Добавление объявления на карту */
+map.insertBefore(renderAnnouncement(announcements[0], mapCardTemplate), map.querySelector('.map__filters-container'));
+
+/* Генерация разметки меток */
+mapPins.appendChild(addPins(announcements, templatePin));
+var mapPinsList = document.querySelectorAll('.map__pin:not(.map__pin--main)');
+
+/* Начальное скрытие */
+var mapCard = map.querySelector('.map__card');
+mapCard.classList.add('hidden');
+
+for (i = 0; i < mapPinsList.length; i++) {
+  mapPinsList[i].classList.add('hidden');
+}
+
+for (i = 0; i < adFormGroups.length; i++) {
+  if (!adFormGroups[i].hasAttribute('disabled')) {
+    adFormGroups[i].setAttribute('disabled', '');
+  }
+}
+
+/* Активация карты */
+var isInit = false;
+var setActiveState = function () {
+  if (map.classList.contains('map--faded')) {
+    map.classList.remove('map--faded');
+  }
+  if (adForm.classList.contains('ad-form--disabled')) {
+    adForm.classList.remove('ad-form--disabled');
+  }
+  for (i = 0; i < adFormGroups.length; i++) {
+    if (adFormGroups[i].hasAttribute('disabled')) {
+      adFormGroups[i].removeAttribute('disabled');
+    }
+  }
+  mapCard.classList.remove('hidden');
+  for (i = 0; i < mapPinsList.length; i++) {
+    mapPinsList[i].classList.remove('hidden');
+  }
+  isInit = true;
+};
+
+/* Координаты середины нижнего края круглой метки */
+var addInitCoords = function () {
+  var img = mainPin.querySelector('img');
+  var coordX = parseInt(mainPin.style.left, 10) + img.clientWidth / 2;
+  var coordY = parseInt(mainPin.style.top, 10) + img.clientHeight;
+  document.getElementById('address').value = coordX + ', ' + coordY;
+  isInit = true;
+};
+
+mainPin.addEventListener('mouseup', function (evt) {
+  if (!isInit) {
+    setActiveState();
+    addInitCoords(evt);
+  }
+});
+
+/* Скрытие объявления */
+var closePopupClickHandler = function () {
+  mapCard.classList.add('hidden');
+};
+/* Показ объявлений по клику на метки */
+var addPinListener = function (btn) {
+  btn.addEventListener('click', function () {
+    var currentIndex = btn.querySelector('img').src.slice(-5, -4) - 1;
+    mapCard.innerHTML = renderAnnouncement(announcements[currentIndex], mapCardTemplate).innerHTML;
+    if (mapCard.classList.contains('hidden')) {
+      mapCard.classList.remove('hidden');
+    }
+    mapCard.querySelector('.popup__close').addEventListener('click', closePopupClickHandler);
+  });
+};
+for (i = 0; i < mapPinsList.length; i++) {
+  if (!mapPinsList[i].classList.contains('map__pin--main')) {
+    addPinListener(mapPinsList[i]);
+  }
+}
