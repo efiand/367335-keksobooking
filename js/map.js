@@ -282,9 +282,9 @@ var roomNumberChangeHandler = function () {
   roomOptions = roomLimits[roomNumber.value];
   for (i = 0; i < capacityOptions.length; i++) {
     if (roomOptions.indexOf(capacityOptions[i].value) === -1) {
-      capacityOptions[i].setAttribute('disabled', '');
+      capacityOptions[i].setAttribute('hidden', '');
     } else {
-      capacityOptions[i].removeAttribute('disabled');
+      capacityOptions[i].removeAttribute('hidden');
     }
   }
   capacityChangeHandler();
@@ -305,11 +305,14 @@ capacity.addEventListener('change', capacityChangeHandler);
 /* Ссответствие времени въезда и выезда */
 var timeIn = adForm.querySelector('#timein');
 var timeOut = adForm.querySelector('#timeout');
+var syncValues = function (field1, field2) {
+  field1.value = field2.value;
+};
 timeIn.addEventListener('change', function () {
-  timeOut.value = timeIn.value;
+  syncValues(timeOut, timeIn);
 });
 timeOut.addEventListener('change', function () {
-  timeIn.value = timeOut.value;
+  syncValues(timeIn, timeOut);
 });
 
 /* Проверка на валидность */
