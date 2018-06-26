@@ -352,22 +352,22 @@ var setActiveState = function () {
   isInit = true;
 };
 
-/* Координаты середины нижнего края круглой метки */
+/* Координаты середины круглой метки */
 var initCoords;
 var address = adForm.querySelector('#address');
 var addInitCoords = function () {
   var img = mainPin.querySelector('img');
   var coordX = parseInt(mainPin.style.left, 10) + img.clientWidth / 2;
-  var coordY = parseInt(mainPin.style.top, 10) + img.clientHeight;
+  var coordY = parseInt(mainPin.style.top, 10) + img.clientHeight / 2;
   initCoords = coordX + ', ' + coordY;
   address.value = initCoords;
-  isInit = true;
 };
+addInitCoords();
 
 mainPin.addEventListener('mouseup', function () {
   if (!isInit) {
+    isInit = true;
     setActiveState();
-    addInitCoords();
   }
 });
 
@@ -396,6 +396,8 @@ reset.addEventListener('click', function (evt) {
   adForm.reset();
   address.value = initCoords;
   map.classList.add('map--faded');
+  adForm.classList.add('ad-form--disabled');
   closePopupClickHandler();
   addClassAll(mapPinsList, 'hidden');
+  setAttributeAll(adFormGroups, 'disabled');
 });
