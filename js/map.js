@@ -349,7 +349,6 @@ var setActiveState = function () {
   removeClassAll(mapPinsList, 'hidden');
   houseTypeChangeHandler();
   roomNumberChangeHandler();
-  mainPin.addEventListener('mousedown', pinMoveHandler);
   isActive = true;
 };
 
@@ -359,11 +358,10 @@ var initCoords;
 var initLeft = mainPin.style.left;
 var initTop = mainPin.style.top;
 var address = adForm.querySelector('#address');
-var mainPinImg = mainPin.querySelector('img');
 var addPinCoords = function () {
-  var coordX = parseInt(mainPin.style.left, 10) + mainPinImg.clientWidth / 2;
-  var y = mainPinImg.clientHeight;
-  var coordY = parseInt(mainPin.style.top, 10) + (isActive ? y : y / 2);
+  var coordX = Math.floor(parseInt(mainPin.style.left, 10) + mainPin.clientWidth / 2);
+  var y = mainPin.clientHeight;
+  var coordY = Math.floor(parseInt(mainPin.style.top, 10) + (isActive ? y : y / 2));
   initCoords = coordX + ', ' + coordY;
   address.value = initCoords;
 };
@@ -380,7 +378,7 @@ var pinMoveHandler = function (evt) {
     },
     y: {
       min: horizonY - mainPin.clientHeight,
-      max: controlsY
+      max: controlsY - mainPin.clientHeight
     }
   };
   var startCoords = {
@@ -425,7 +423,7 @@ var pinMoveHandler = function (evt) {
   document.addEventListener('mousemove', mouseMoveHandler);
   document.addEventListener('mouseup', mouseUpHandler);
 };
-
+mainPin.addEventListener('mousedown', pinMoveHandler);
 
 /* Показ объявлений по клику на метки */
 var addPinListener = function (btn) {
@@ -463,7 +461,6 @@ reset.addEventListener('click', function (evt) {
   closePopupClickHandler();
   addClassAll(mapPinsList, 'hidden');
   setAttributeAll(adFormGroups, 'disabled');
-  mainPin.removeEventListener('mousedown', pinMoveHandler);
   mainPin.style.left = initLeft;
   mainPin.style.top = initTop;
   addPinCoords();
