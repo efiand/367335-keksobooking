@@ -340,7 +340,7 @@ for (i = 0; i < checkList.length; i++) {
 
 
 /* Активация карты */
-var isInit = false;
+var isActive = false;
 var setActiveState = function () {
   mapCard.classList.remove('hidden');
   map.classList.remove('map--faded');
@@ -349,27 +349,83 @@ var setActiveState = function () {
   removeClassAll(mapPinsList, 'hidden');
   houseTypeChangeHandler();
   roomNumberChangeHandler();
-  isInit = true;
+  mainPin.addEventListener('mousedown', pinMoveHandler);
+  isActive = true;
 };
 
-/* Координаты середины круглой метки */
+
+/* Координаты центра (в активном состоянии - середины нижнего края) круглой метки */
 var initCoords;
+var initLeft = mainPin.style.left;
+var initTop = mainPin.style.top;
 var address = adForm.querySelector('#address');
-var addInitCoords = function () {
-  var img = mainPin.querySelector('img');
-  var coordX = parseInt(mainPin.style.left, 10) + img.clientWidth / 2;
-  var coordY = parseInt(mainPin.style.top, 10) + img.clientHeight / 2;
+var mainPinImg = mainPin.querySelector('img');
+var addPinCoords = function () {
+  var coordX = parseInt(mainPin.style.left, 10) + mainPinImg.clientWidth / 2;
+  var y = mainPinImg.clientHeight;
+  var coordY = parseInt(mainPin.style.top, 10) + (isActive ? y : y / 2);
   initCoords = coordX + ', ' + coordY;
   address.value = initCoords;
 };
-addInitCoords();
+addPinCoords();
 
-mainPin.addEventListener('mouseup', function () {
-  if (!isInit) {
-    isInit = true;
-    setActiveState();
-  }
-});
+/* Перемещение метки */
+var pinMoveHandler = function (evt) {
+  var horizonY = 130;
+  var controlsY = 630;
+  var coordLimits = {
+    x: {
+      min: 0,
+      max: map.clientWidth - mainPin.clientWidth
+    },
+    y: {
+      min: horizonY - mainPin.clientHeight,
+      max: controlsY
+    }
+  };
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  var mouseMoveHandler = function (dropEvt) {
+    var diffCoords = {
+      x: startCoords.x - dropEvt.clientX,
+      y: startCoords.y - dropEvt.clientY
+    };
+    startCoords = {
+      x: dropEvt.clientX,
+      y: dropEvt.clientY
+    };
+
+    var left = mainPin.offsetLeft - diffCoords.x;
+    if (left > coordLimits.x.max) {
+      left = coordLimits.x.max;
+    } else if (left < coordLimits.x.min) {
+      left = coordLimits.x.min;
+    }
+
+    var top = mainPin.offsetTop - diffCoords.y;
+    if (top > coordLimits.y.max) {
+      top = coordLimits.y.max;
+    } else if (top < coordLimits.y.min) {
+      top = coordLimits.y.min;
+    }
+
+    mainPin.style.left = left + 'px';
+    mainPin.style.top = top + 'px';
+  };
+
+  var mouseUpHandler = function () {
+    document.removeEventListener('mousemove', mouseMoveHandler);
+    document.removeEventListener('mouseup', mouseUpHandler);
+    addPinCoords();
+  };
+
+  document.addEventListener('mousemove', mouseMoveHandler);
+  document.addEventListener('mouseup', mouseUpHandler);
+};
+
 
 /* Показ объявлений по клику на метки */
 var addPinListener = function (btn) {
@@ -385,6 +441,14 @@ for (i = 0; i < mapPinsList.length; i++) {
 }
 
 
+/* Активация (по отпусканию мыши на кругой метке) */
+mainPin.addEventListener('mouseup', function () {
+  if (!isActive) {
+    setActiveState();
+  }
+});
+
+
 /* Деактивация (по кнопке Reset) */
 var reset = adForm.querySelector('[type="reset"]');
 reset.addEventListener('click', function (evt) {
@@ -392,12 +456,15 @@ reset.addEventListener('click', function (evt) {
   for (i = 0; i < checkList.length; i++) {
     checkList[i].style.boxShadow = 'none';
   }
-  isInit = false;
+  isActive = false;
   adForm.reset();
-  address.value = initCoords;
   map.classList.add('map--faded');
   adForm.classList.add('ad-form--disabled');
   closePopupClickHandler();
   addClassAll(mapPinsList, 'hidden');
   setAttributeAll(adFormGroups, 'disabled');
+  mainPin.removeEventListener('mousedown', pinMoveHandler);
+  mainPin.style.left = initLeft;
+  mainPin.style.top = initTop;
+  addPinCoords();
 });
