@@ -60,7 +60,7 @@
   };
 
   /* Проверка на валидность */
-  var adFormSubmit = adForm.querySelector('.ad-form__submit');
+  var submitBtn = adForm.querySelector('.ad-form__submit');
   var checkList = adForm.querySelectorAll('.ad-form input, .ad-form select');
   var invalidBorder = '0 0 2px 2px #ff6547';
   var addInvalidListener = function (elem) {
@@ -89,7 +89,7 @@
   });
 
   /* Валидация */
-  adFormSubmit.addEventListener('click', function () {
+  submitBtn.addEventListener('click', function () {
     adForm.checkValidity();
   });
   for (var i = 0; i < checkList.length; i++) {
@@ -103,6 +103,7 @@
     adGroups: adFormGroups,
     houseTypeChangeHandler: houseTypeChangeHandler,
     roomNumberChangeHandler: roomNumberChangeHandler,
-    checkList: checkList
+    checkList: checkList,
+    submitBtn: submitBtn
   };
 })();
