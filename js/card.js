@@ -9,7 +9,7 @@
 
       announcement.querySelector('.popup__title').textContent = data.offer.title;
       announcement.querySelector('.popup__text--address').textContent = data.offer.address;
-      announcement.querySelector('.popup__type').textContent = window.data.src['houseTypes'][data.offer.type];
+      announcement.querySelector('.popup__type').textContent = window.data.house[data.offer.type];
       announcement.querySelector('.popup__text--capacity').textContent = data.offer.rooms + ' комнаты для ' + data.offer.guests + ' гостей.';
       announcement.querySelector('.popup__text--time').textContent = 'Заезд после ' + data.offer.checkin + ', выезд до ' + data.offer.checkout + '.';
       announcement.querySelector('.popup__description').textContent = data.offer.description;
@@ -33,7 +33,11 @@
 
       var photos = announcement.querySelector('.popup__photos');
       var photo = announcement.querySelector('.popup__photo');
-      photo.src = data.offer.photos[0];
+      if (data.offer.photos[0]) {
+        photo.src = data.offer.photos[0];
+      } else {
+        photos.innerHTML = 'Фотографий нет.';
+      }
       for (i = 1; i < data.offer.photos.length; i++) {
         var anotherPhoto = photo.cloneNode(true);
         anotherPhoto.src = data.offer.photos[i];
