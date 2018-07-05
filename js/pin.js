@@ -11,6 +11,7 @@
   var pinsBlock = document.querySelector('.map__pins');
   var pinsSelector = '.map__pin:not(.map__pin--main)';
   var pins = pinsBlock.querySelectorAll(pinsSelector);
+  var wasFirstRender = false;
 
   /* Генерация разметки метки */
   var renderPin = function (data, template) {
@@ -45,8 +46,12 @@
   window.pin = {
 
     /* Функция генерации меток */
-    add: function (data) {
-      var workData = window.filter.do(data);
+    render: function (workData) {
+
+      /* Удаление карточки */
+      if (wasFirstRender) {
+        mapCard.remove();
+      }
 
       /* Удаление существующих меток */
       for (var i = 0; i < pins.length; i++) {
@@ -62,11 +67,14 @@
       pins = pinsBlock.querySelectorAll(pinsSelector);
 
       /* Начальное скрытие меток */
-      window.utils.addClassAll(pins, 'hidden');
+      if (!wasFirstRender) {
+        window.utils.addClassAll(pins, 'hidden');
+      }
 
       /* Добавление объявления на карту */
       map.insertBefore(window.card.renderAnnouncement(workData[0], mapCardTemplate), map.querySelector('.map__filters-container'));
       mapCard = map.querySelector('.map__card');
+      wasFirstRender = true;
       mapCardClose = mapCard.querySelector('.popup__close');
 
       /* Начальное скрытие объявления */
@@ -80,7 +88,6 @@
 
     /* При активации карты */
     activate: function () {
-      mapCard.classList.remove('hidden');
       mapCardClose.addEventListener('click', closePopupClickHandler);
       document.addEventListener('keydown', closePopupKeydownHandler);
       window.utils.removeClassAll(pins, 'hidden');
@@ -91,6 +98,8 @@
       mapCardClose.removeEventListener('click', closePopupClickHandler);
       document.removeEventListener('keydown', closePopupKeydownHandler);
       window.utils.addClassAll(pins, 'hidden');
-    }
+    },
+
+    closePopupClickHandler: closePopupClickHandler
   };
 })();

@@ -9,6 +9,29 @@
   var initTop = mainPin.style.top;
   var isActive = false;
   var isLoadData = false;
+  var filterForm = document.querySelector('.map__filters');
+  var filterFields = filterForm.querySelectorAll('select, input');
+  var filterHouse = filterForm.elements['housing-type'];
+  var filterPrice = filterForm.elements['housing-price'];
+  var filterRooms = filterForm.elements['housing-rooms'];
+  var filterGuests = filterForm.elements['housing-guests'];
+  var filterFeatures = filterForm.querySelectorAll('input');
+
+  /* Данные для фильтрации */
+  var houses = Object.keys(window.data.house);
+  var filterOptions = {
+    price: {}
+  };
+  var doFilter = function (data, options) {
+    return data.filter(function (elem) {
+      return options.type.indexOf(elem.offer.type) > -1
+        && elem.offer.price >= options.price.min
+        && elem.offer.price < options.price.max
+        && (options.rooms < 0 ? (elem.offer.rooms >= 0) : (elem.offer.rooms === options.rooms))
+        && (options.guests < 0 ? (elem.offer.guests >= 0) : (elem.offer.guests === options.guests))
+        && elem.offer.features.sort().join() === options.features.sort().join();
+    });
+  };
 
   /* Скрытие окна успешной отправки */
   var successMsg = document.querySelector('.success');
@@ -60,15 +83,64 @@
     addPinCoords();
   };
 
+  /* Смена фильтра */
+  var renderFilteredPens = function (data, options) {
+    options.type = (filterHouse.value === 'any') ? houses : [filterHouse.value];
+
+    options.price.min = 0;
+    if (filterPrice.value === 'middle') {
+      options.price.min = window.data.Price.MIDDLE;
+    } else if (filterPrice.value === 'high') {
+      options.price.min = window.data.Price.HIGH;
+    }
+    options.price.max = window.data.Price.MAX;
+    if (filterPrice.value === 'middle') {
+      options.price.max = window.data.Price.HIGH;
+    } else if (filterPrice.value === 'low') {
+      options.price.max = window.data.Price.MIDDLE;
+    }
+
+    options.rooms = -1;
+    if (filterRooms.value !== 'any') {
+      options.rooms = parseInt(filterRooms.value, 10);
+    }
+
+    options.guests = -1;
+    if (filterGuests.value !== 'any') {
+      options.guests = parseInt(filterGuests.value, 10);
+    }
+
+    options.features = [];
+    filterFeatures.forEach(function (elem) {
+      if (elem.checked) {
+        options.features.push(elem.value);
+      }
+    });
+
+    window.pin.render(doFilter(data, options));
+  };
+  var fieldsHandler = function (elem, data, options) {
+    elem.addEventListener('change', function () {
+      window.utils.debounce(function () {
+        renderFilteredPens(data, options);
+      });
+    });
+  };
+
   /* Обработка данных: генерация разметки и подписка на события */
   var loadHandler = function (data) {
 
     /* Генерация разметки меток и объявлений */
-    window.pin.add(data);
+    renderFilteredPens(data, filterOptions);
 
     isLoadData = true;
     setActiveState();
     addPinCoords();
+
+    /* Фильтрация меток */
+    for (var i = 0; i < filterFields.length; i++) {
+      fieldsHandler(filterFields[i], data, filterOptions);
+    }
   };
 
 
