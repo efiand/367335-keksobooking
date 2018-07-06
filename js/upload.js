@@ -60,6 +60,7 @@
     showPics(avatarField, 'ad-form-header__preview', 'ad-form-header__preview');
   });
 
+  photosField.setAttribute('multiple', 'true');
   photosField.addEventListener('change', function () {
     showPics(photosField, 'ad-form__photo', 'ad-form__photo-container');
   });
