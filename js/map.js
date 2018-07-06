@@ -22,15 +22,15 @@
   var filterOptions = {
     price: {}
   };
-  var doFilter = function (data, options) {
+  var doFilter = function (data, options, isActivate) {
     return data.filter(function (elem) {
       return options.type.indexOf(elem.offer.type) > -1
         && elem.offer.price >= options.price.min
         && elem.offer.price < options.price.max
         && (options.rooms < 0 ? (elem.offer.rooms >= 0) : (elem.offer.rooms === options.rooms))
         && (options.guests < 0 ? (elem.offer.guests >= 0) : (elem.offer.guests === options.guests))
-        && elem.offer.features.sort().join() === options.features.sort().join();
-    });
+        && (!isActivate ? (elem.offer.features.sort().join() === options.features.sort().join()) : elem.offer.features.length);
+    }).slice(0, window.data.pinsLimit);
   };
 
   /* Скрытие окна успешной отправки */
@@ -84,7 +84,7 @@
   };
 
   /* Смена фильтра */
-  var renderFilteredPens = function (data, options) {
+  var renderFilteredPens = function (data, options, isActivate) {
     options.type = (filterHouse.value === 'any') ? houses : [filterHouse.value];
 
     options.price.min = 0;
@@ -117,7 +117,7 @@
       }
     });
 
-    window.pin.render(doFilter(data, options));
+    window.pin.render(doFilter(data, options, isActivate));
   };
   var fieldsHandler = function (elem, data, options) {
     elem.addEventListener('change', function () {
@@ -131,7 +131,7 @@
   var loadHandler = function (data) {
 
     /* Генерация разметки меток и объявлений */
-    renderFilteredPens(data, filterOptions);
+    renderFilteredPens(data, filterOptions, true);
 
     isLoadData = true;
     setActiveState();
