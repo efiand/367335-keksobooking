@@ -4,6 +4,7 @@
 (function () {
   var ESC_KEY = 27;
   var i;
+  var lastTimeout;
 
   window.utils = {
 
@@ -109,6 +110,14 @@
       var y = element.clientHeight;
       var coordY = Math.floor(parseInt(element.style.top, 10) + (posY === 'bottom' ? y : y / 2));
       return coordX + ', ' + coordY;
+    },
+
+    /* Устранение «дребезга» */
+    debounce: function (fun) {
+      if (lastTimeout) {
+        window.clearTimeout(lastTimeout);
+      }
+      lastTimeout = window.setTimeout(fun, window.data.timeout);
     }
   };
 })();

@@ -3,30 +3,38 @@
 
 (function () {
   var map = document.querySelector('.map');
-  var templateContent = document.querySelector('template').content;
-  var mapCardTemplate = templateContent.querySelector('.map__card');
   var resetBtn = window.form.container.querySelector('[type="reset"]');
-  var successMsg = document.querySelector('.success');
-  var mapCard;
-  var mapCardClose;
-  var mapPinsList;
   var mainPin = document.querySelector('.map__pin--main');
   var initLeft = mainPin.style.left;
   var initTop = mainPin.style.top;
   var isActive = false;
   var isLoadData = false;
+  var filterForm = document.querySelector('.map__filters');
+  var filterFields = filterForm.querySelectorAll('select, input');
+  var filterHouse = filterForm.elements['housing-type'];
+  var filterPrice = filterForm.elements['housing-price'];
+  var filterRooms = filterForm.elements['housing-rooms'];
+  var filterGuests = filterForm.elements['housing-guests'];
+  var filterFeatures = filterForm.querySelectorAll('input');
 
-  /* Скрытие объявления */
-  var closePopupClickHandler = function () {
-    mapCard.classList.add('hidden');
+  /* Данные для фильтрации */
+  var houses = Object.keys(window.data.house);
+  var filterOptions = {
+    price: {}
   };
-  var closePopupKeydownkHandler = function (evt) {
-    if (window.utils.isPressEsc(evt)) {
-      closePopupClickHandler();
-    }
+  var doFilter = function (data, options, isActivate) {
+    return data.filter(function (elem) {
+      return options.type.indexOf(elem.offer.type) > -1
+        && elem.offer.price >= options.price.min
+        && elem.offer.price < options.price.max
+        && (options.rooms < 0 ? (elem.offer.rooms >= 0) : (elem.offer.rooms === options.rooms))
+        && (options.guests < 0 ? (elem.offer.guests >= 0) : (elem.offer.guests === options.guests))
+        && (!isActivate ? (elem.offer.features.sort().join() === options.features.sort().join()) : elem.offer.features.length);
+    }).slice(0, window.data.pinsLimit);
   };
 
   /* Скрытие окна успешной отправки */
+  var successMsg = document.querySelector('.success');
   var successMsgClickHandler = function () {
     successMsg.classList.add('hidden');
   };
@@ -34,15 +42,6 @@
     if (window.utils.isPressEsc(evt)) {
       successMsgClickHandler();
     }
-  };
-
-  /* Показ объявлений по клику на метки */
-  var addPinListener = function (btn, data) {
-    btn.addEventListener('click', function () {
-      mapCard.innerHTML = window.card.renderAnnouncement(data, mapCardTemplate).innerHTML;
-      mapCard.classList.remove('hidden');
-      mapCard.querySelector('.popup__close').addEventListener('click', closePopupClickHandler);
-    });
   };
 
   /* Координаты центра (в активном состоянии - середины нижнего края) круглой метки */
@@ -58,15 +57,12 @@
   /* Активное состояние */
   var setActiveState = function () {
     isActive = true;
-    mapCard.classList.remove('hidden');
     map.classList.remove('map--faded');
     window.form.container.classList.remove('ad-form--disabled');
     window.utils.removeAttributeAll(window.form.adGroups, 'disabled');
-    window.utils.removeClassAll(mapPinsList, 'hidden');
     window.form.houseTypeChangeHandler();
     window.form.roomNumberChangeHandler();
-    mapCardClose.addEventListener('click', closePopupClickHandler);
-    document.addEventListener('keydown', closePopupKeydownkHandler);
+    window.pin.activate();
     document.removeEventListener('click', successMsgClickHandler);
     document.removeEventListener('keydown', successMsgKeydownHandler);
   };
@@ -80,42 +76,71 @@
     window.form.container.reset();
     map.classList.add('map--faded');
     window.form.container.classList.add('ad-form--disabled');
-    closePopupClickHandler();
-    window.utils.addClassAll(mapPinsList, 'hidden');
+    window.pin.deactivate();
     window.utils.setAttributeAll(window.form.adGroups, 'disabled');
     mainPin.style.left = initLeft;
     mainPin.style.top = initTop;
     addPinCoords();
-    mapCardClose.removeEventListener('click', closePopupClickHandler);
-    document.removeEventListener('keydown', closePopupKeydownkHandler);
+  };
+
+  /* Смена фильтра */
+  var renderFilteredPens = function (data, options, isActivate) {
+    options.type = (filterHouse.value === 'any') ? houses : [filterHouse.value];
+
+    options.price.min = 0;
+    if (filterPrice.value === 'middle') {
+      options.price.min = window.data.Price.MIDDLE;
+    } else if (filterPrice.value === 'high') {
+      options.price.min = window.data.Price.HIGH;
+    }
+    options.price.max = window.data.Price.MAX;
+    if (filterPrice.value === 'middle') {
+      options.price.max = window.data.Price.HIGH;
+    } else if (filterPrice.value === 'low') {
+      options.price.max = window.data.Price.MIDDLE;
+    }
+
+    options.rooms = -1;
+    if (filterRooms.value !== 'any') {
+      options.rooms = parseInt(filterRooms.value, 10);
+    }
+
+    options.guests = -1;
+    if (filterGuests.value !== 'any') {
+      options.guests = parseInt(filterGuests.value, 10);
+    }
+
+    options.features = [];
+    filterFeatures.forEach(function (elem) {
+      if (elem.checked) {
+        options.features.push(elem.value);
+      }
+    });
+
+    window.pin.render(doFilter(data, options, isActivate));
+  };
+  var fieldsHandler = function (elem, data, options) {
+    elem.addEventListener('change', function () {
+      window.utils.debounce(function () {
+        renderFilteredPens(data, options);
+      });
+    });
   };
 
   /* Обработка данных: генерация разметки и подписка на события */
   var loadHandler = function (data) {
 
-    /* Генерация разметки меток */
-    document.querySelector('.map__pins').appendChild(window.pin.add(data, templateContent.querySelector('.map__pin')));
-    mapPinsList = document.querySelectorAll('.map__pin:not(.map__pin--main)');
-
-    /* Начальное скрытие меток */
-    window.utils.addClassAll(mapPinsList, 'hidden');
-
-    /* Добавление объявления на карту */
-    map.insertBefore(window.card.renderAnnouncement(data[0], mapCardTemplate), map.querySelector('.map__filters-container'));
-    mapCard = map.querySelector('.map__card');
-    mapCardClose = mapCard.querySelector('.popup__close');
-
-    /* Начальное скрытие объявления */
-    closePopupClickHandler();
-
-    /* Подписка на показ объявлений по клику на метки */
-    for (var i = 0; i < mapPinsList.length; i++) {
-      addPinListener(mapPinsList[i], data[i]);
-    }
+    /* Генерация разметки меток и объявлений */
+    renderFilteredPens(data, filterOptions, true);
 
     isLoadData = true;
     setActiveState();
     addPinCoords();
+
+    /* Фильтрация меток */
+    for (var i = 0; i < filterFields.length; i++) {
+      fieldsHandler(filterFields[i], data, filterOptions);
+    }
   };
 
 
