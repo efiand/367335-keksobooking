@@ -137,6 +137,21 @@
     setActiveState();
     addPinCoords();
 
+    map.addEventListener('click', function (evt) {
+      var title = evt.target.alt || '';
+      if (evt.target.className === 'map__pin') {
+        title = evt.target.querySelector('img').alt;
+      }
+      if (title) {
+        for (i = 0; i < data.length; i++) {
+          if (data[i].offer.title === title) {
+            window.pin.addPinListener(data[i]);
+            break;
+          }
+        }
+      }
+    });
+
     /* Фильтрация меток */
     for (var i = 0; i < filterFields.length; i++) {
       fieldsHandler(filterFields[i], data, filterOptions);
@@ -153,8 +168,10 @@
   /* Активация карты (по отпусканию мыши на кругой метке) */
   mainPin.addEventListener('mouseup', function () {
     if (!isLoadData) {
+
       /* Получение данных и их обработка */
       window.backend.load(loadHandler, window.utils.errorHandler);
+
     } else if (!isActive) {
       setActiveState();
     }
