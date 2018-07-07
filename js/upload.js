@@ -4,6 +4,7 @@
   var FILE_TYPES = ['png', 'jpg', 'jpeg', 'gif'];
   var avatarField = document.querySelector('#avatar');
   var photosField = document.querySelector('#images');
+  var resetBtn = window.form.container.querySelector('[type="reset"]');
   var isFirstUpload = true;
 
   /* Установка свойств блока с картинкой */
@@ -73,9 +74,46 @@
         img.style.top = 0;
         img.style.left = '50%';
         img.style.transform = 'translateX(-50%)';
+        img.style.pointerEvents = 'none';
         getData(field.files[i], img, true);
       }
     }
+  };
+
+  /* Сортировка картинок перетаскиванием */
+  var sortPics = function (picsContainer) {
+    var pic;
+
+    var dragOverHandler = function (evt) {
+      evt.preventDefault();
+      evt.dataTransfer.dropEffect = 'move';
+      var target = evt.target;
+      if (target && target !== pic && target.nodeName === 'DIV') {
+        picsContainer.insertBefore(pic, target.nextSibling || target);
+      }
+    };
+
+    var dragEndHandler = function (evt) {
+      evt.preventDefault();
+      picsContainer.removeEventListener('dragover', dragOverHandler);
+      picsContainer.removeEventListener('dragend', dragEndHandler);
+    };
+
+    var dragStartHandler = function (evt) {
+      pic = evt.target;
+      evt.dataTransfer.effectAllowed = 'move';
+      evt.dataTransfer.setData('text/html', pic.innerHTML);
+
+      pic.addEventListener('dragover', dragOverHandler);
+      pic.addEventListener('dragend', dragEndHandler);
+    };
+
+    document.querySelector('.map__pin--main').addEventListener('click', function () {
+      picsContainer.addEventListener('dragstart', dragStartHandler);
+    });
+    resetBtn.addEventListener('click', function () {
+      picsContainer.removeEventListener('dragstart', dragStartHandler);
+    });
   };
 
 
@@ -88,10 +126,12 @@
     showPics(photosField, 'ad-form__photo', 'ad-form__photo-container');
   });
 
-  window.form.container.querySelector('[type="reset"]').addEventListener('click', function () {
+  resetBtn.addEventListener('click', function () {
     document.querySelector('.ad-form-header__preview img').src = window.data.defaultAvatar;
     resetPhotos();
   });
+
+  sortPics(document.querySelector('.ad-form__photo-container'));
 
 
   window.upload = {
@@ -117,8 +157,6 @@
     doList: function (evtDrop) {
       photosField.files = evtDrop.dataTransfer.files;
       showPics(photosField, 'ad-form__photo', 'ad-form__photo-container');
-    },
-
-
+    }
   };
 })();
