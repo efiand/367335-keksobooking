@@ -14,6 +14,18 @@
     node.appendChild(img);
   };
 
+  var resetPhotos = function () {
+    var pics = document.querySelectorAll('.ad-form__photo');
+    for (var i = 0; i < pics.length; i++) {
+      if (i) {
+        pics[i].remove();
+      } else {
+        pics[i].innerHTML = '';
+      }
+    }
+    isFirstUpload = true;
+  };
+
   /* Получение изображений */
   var showPics = function (field, previewNodeClass, parentNodeClass) {
     var isPicLoaded = false;
@@ -52,6 +64,7 @@
     if (previewNodeClass === parentNodeClass) {
       getData(field.files[0], document.querySelector('.' + previewNodeClass + ' img'));
     } else {
+      resetPhotos();
       var parent = document.querySelector('.' + parentNodeClass);
       for (var i = 0; i < field.files.length; i++) {
         var img = document.createElement('img');
@@ -65,6 +78,7 @@
     }
   };
 
+
   avatarField.addEventListener('change', function () {
     showPics(avatarField, 'ad-form-header__preview', 'ad-form-header__preview');
   });
@@ -73,16 +87,38 @@
   photosField.addEventListener('change', function () {
     showPics(photosField, 'ad-form__photo', 'ad-form__photo-container');
   });
+
   window.form.container.querySelector('[type="reset"]').addEventListener('click', function () {
     document.querySelector('.ad-form-header__preview img').src = window.data.defaultAvatar;
-    var pics = document.querySelectorAll('.ad-form__photo');
-    for (var i = 0; i < pics.length; i++) {
-      if (i) {
-        pics[i].remove();
-      } else {
-        pics[i].innerHTML = '';
-      }
-    }
-    isFirstUpload = true;
+    resetPhotos();
   });
+
+
+  window.upload = {
+    /* Drag and drop в поле загрузки файлов */
+    dropZoneHandler: function (evt, dropZone, callback) {
+      evt.preventDefault();
+
+      var dragOverHandler = function (evtOver) {
+        evtOver.preventDefault();
+      };
+      var dropHandler = function (evtDrop) {
+        evtDrop.preventDefault();
+        callback(evtDrop);
+        dropZone.removeEventListener('dragover', dragOverHandler);
+        dropZone.removeEventListener('drop', dropHandler);
+      };
+
+      dropZone.addEventListener('dragover', dragOverHandler);
+      dropZone.addEventListener('drop', dropHandler);
+    },
+
+    /* Callback при перетаскивании файлов в дропзону */
+    doList: function (evtDrop) {
+      photosField.files = evtDrop.dataTransfer.files;
+      showPics(photosField, 'ad-form__photo', 'ad-form__photo-container');
+    },
+
+
+  };
 })();

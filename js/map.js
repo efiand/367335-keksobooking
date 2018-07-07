@@ -16,6 +16,7 @@
   var filterRooms = filterForm.elements['housing-rooms'];
   var filterGuests = filterForm.elements['housing-guests'];
   var filterFeatures = filterForm.querySelectorAll('input');
+  var dropZone = document.querySelector('.ad-form__drop-zone');
 
   /* Данные для фильтрации */
   var houses = Object.keys(window.data.house);
@@ -54,6 +55,11 @@
     window.utils.dragDropHandler(evt, mainPin, map, addPinCoords);
   };
 
+  /* Drag and drop фото в браузер */
+  var picsDropHandler = function (evt) {
+    window.upload.dropZoneHandler(evt, dropZone, window.upload.doList);
+  };
+
   /* Активное состояние */
   var setActiveState = function () {
     isActive = true;
@@ -63,6 +69,7 @@
     window.form.houseTypeChangeHandler();
     window.form.roomNumberChangeHandler();
     window.pin.activate();
+    dropZone.addEventListener('dragenter', picsDropHandler);
     document.removeEventListener('click', successMsgClickHandler);
     document.removeEventListener('keydown', successMsgKeydownHandler);
   };
@@ -78,6 +85,7 @@
     window.form.container.classList.add('ad-form--disabled');
     window.pin.deactivate();
     window.utils.setAttributeAll(window.form.adGroups, 'disabled');
+    dropZone.removeEventListener('dragenter', picsDropHandler);
     mainPin.style.left = initLeft;
     mainPin.style.top = initTop;
     addPinCoords();
