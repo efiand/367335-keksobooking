@@ -81,6 +81,7 @@
     mainPin.style.left = initLeft;
     mainPin.style.top = initTop;
     addPinCoords();
+    window.upload.resetPics();
   };
 
   /* Смена фильтра */

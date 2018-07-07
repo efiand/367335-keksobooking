@@ -32,6 +32,7 @@
       load: 'https://js.dump.academy/keksobooking/data',
       save: 'https://js.dump.academy/keksobooking'
     },
-    timeout: 500
+    timeout: 500,
+    defaultAvatar: 'img/muffin-grey.svg'
   };
 })();

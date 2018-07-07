@@ -39,19 +39,21 @@
         img.style.top = 0;
         img.style.left = '50%';
         img.style.transform = 'translateX(-50%)';
+        getData(field.files[i], img);
         if (isFirstDownload) {
           var node = parent.querySelector('.' + previewNodeClass);
           setStyles(node);
           node.appendChild(img);
+          node.setAttribute('draggable', 'true');
           isFirstDownload = false;
         } else {
           var block = document.createElement('div');
           block.classList.add(previewNodeClass);
           setStyles(block);
+          block.setAttribute('draggable', 'true');
           block.appendChild(img);
           parent.appendChild(block);
         }
-        getData(field.files[i], img);
       }
     }
   };
@@ -64,4 +66,19 @@
   photosField.addEventListener('change', function () {
     showPics(photosField, 'ad-form__photo', 'ad-form__photo-container');
   });
+
+
+  window.upload = {
+    resetPics: function () {
+      document.querySelector('.ad-form-header__preview img').src = window.data.defaultAvatar;
+      var pics = document.querySelectorAll('.ad-form__photo');
+      for (var i = 0; i < pics.length; i++) {
+        if (i) {
+          pics[i].remove();
+        } else {
+          pics[i].innerHTML = '';
+        }
+      }
+    }
+  };
 })();
