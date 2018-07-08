@@ -118,6 +118,21 @@
         window.clearTimeout(lastTimeout);
       }
       lastTimeout = window.setTimeout(fun, window.data.timeout);
+    },
+
+    /* Корректировка существительных после числительных */
+    numDecline: function (num, nominative, genetiveSingular, genetivePlural) {
+      var answer = genetivePlural;
+      var numLast = parseInt(num.toString().slice(-1), 10);
+      var numLastDecim = parseInt(num.toString().slice(-2, -1), 10);
+      if (numLastDecim !== 1) {
+        if (numLast === 1) {
+          answer = nominative;
+        } else if (numLast > 1 && numLast < 5) {
+          answer = genetiveSingular;
+        }
+      }
+      return num + ' ' + answer;
     }
   };
 })();
