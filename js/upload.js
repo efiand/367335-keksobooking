@@ -79,6 +79,9 @@
       }
     }
   };
+  var photosChangeHandler = function () {
+    showPics(photosField, 'ad-form__photo', 'ad-form__photo-container');
+  };
 
   /* Сортировка картинок перетаскиванием */
   var sortPics = function (picsContainer) {
@@ -97,6 +100,7 @@
       evt.preventDefault();
       picsContainer.removeEventListener('dragover', dragOverHandler);
       picsContainer.removeEventListener('dragend', dragEndHandler);
+      photosField.addEventListener('change', photosChangeHandler);
     };
 
     var dragStartHandler = function (evt) {
@@ -104,6 +108,7 @@
       evt.dataTransfer.effectAllowed = 'move';
       evt.dataTransfer.setData('text/html', pic.innerHTML);
 
+      photosField.removeEventListener('change', photosChangeHandler);
       pic.addEventListener('dragover', dragOverHandler);
       pic.addEventListener('dragend', dragEndHandler);
     };
@@ -122,9 +127,7 @@
   });
 
   photosField.setAttribute('multiple', 'true');
-  photosField.addEventListener('change', function () {
-    showPics(photosField, 'ad-form__photo', 'ad-form__photo-container');
-  });
+  photosField.addEventListener('change', photosChangeHandler);
 
   resetBtn.addEventListener('click', function () {
     document.querySelector('.ad-form-header__preview img').src = window.data.defaultAvatar;
@@ -156,7 +159,6 @@
     /* Callback при перетаскивании файлов в дропзону */
     doList: function (evtDrop) {
       photosField.files = evtDrop.dataTransfer.files;
-      showPics(photosField, 'ad-form__photo', 'ad-form__photo-container');
     }
   };
 })();
