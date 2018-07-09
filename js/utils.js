@@ -6,6 +6,12 @@
   var i;
   var lastTimeout;
 
+  /* Конструктор объекта с координатами */
+  var Coords = function (x, y) {
+    this.x = x;
+    this.y = y;
+  };
+
   window.utils = {
 
     /* Проверка нажатия Esc */
@@ -61,37 +67,25 @@
           max: window.data.limitY.max - control.clientHeight
         }
       };
-      var startCoords = {
-        x: evt.clientX,
-        y: evt.clientY
-      };
+      var startCoords = new Coords(evt.clientX, evt.clientY);
 
       var mouseMoveHandler = function (dropEvt) {
-        var diffCoords = {
-          x: startCoords.x - dropEvt.clientX,
-          y: startCoords.y - dropEvt.clientY
+        var diffCoords = new Coords(startCoords.x - dropEvt.clientX, startCoords.y - dropEvt.clientY);
+        startCoords.x = dropEvt.clientX;
+        startCoords.y = dropEvt.clientY;
+
+        var setProperty = function (elem, propertyJS) {
+          var value = control[propertyJS] - diffCoords[elem];
+          if (value > coordLimits[elem].max) {
+            value = coordLimits[elem].max;
+          } else if (value < coordLimits[elem].min) {
+            value = coordLimits[elem].min;
+          }
+          return value + 'px';
         };
-        startCoords = {
-          x: dropEvt.clientX,
-          y: dropEvt.clientY
-        };
 
-        var left = control.offsetLeft - diffCoords.x;
-        if (left > coordLimits.x.max) {
-          left = coordLimits.x.max;
-        } else if (left < coordLimits.x.min) {
-          left = coordLimits.x.min;
-        }
-
-        var top = control.offsetTop - diffCoords.y;
-        if (top > coordLimits.y.max) {
-          top = coordLimits.y.max;
-        } else if (top < coordLimits.y.min) {
-          top = coordLimits.y.min;
-        }
-
-        control.style.left = left + 'px';
-        control.style.top = top + 'px';
+        control.style.left = setProperty('x', 'offsetLeft');
+        control.style.top = setProperty('y', 'offsetTop');
       };
 
       var mouseUpHandler = function () {
