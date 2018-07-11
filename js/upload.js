@@ -11,6 +11,7 @@
   var prepareImg = function (node, img) {
     node.style.overflow = 'hidden';
     node.style.position = 'relative';
+    node.style.border = '4px solid #e4e4de';
     node.setAttribute('draggable', 'true');
     node.appendChild(img);
   };
@@ -22,6 +23,7 @@
         pics[i].remove();
       } else {
         pics[i].innerHTML = '';
+        pics[i].style.cursor = 'default';
       }
     }
     isFirstUpload = true;
@@ -44,11 +46,15 @@
             if (isFirstUpload) {
               var node = parent.querySelector('.' + previewNodeClass);
               prepareImg(node, previewImg);
+              if (field.files.length > 1) {
+                node.style.cursor = 'move';
+              }
               isFirstUpload = false;
             } else {
               var block = document.createElement('div');
               block.classList.add(previewNodeClass);
               prepareImg(block, previewImg);
+              block.style.cursor = 'move';
               parent.appendChild(block);
             }
           }
@@ -71,7 +77,7 @@
         var img = document.createElement('img');
         img.style.height = '70px';
         img.style.position = 'absolute';
-        img.style.top = 0;
+        img.style.top = '0';
         img.style.left = '50%';
         img.style.transform = 'translateX(-50%)';
         img.style.pointerEvents = 'none';
@@ -85,39 +91,66 @@
 
   /* Сортировка картинок перетаскиванием */
   var sortPics = function (picsContainer) {
-    var pic;
+    var dragSrc;
+
+    var dragStartHandler = function (evt) {
+      if (evt.target.className === 'ad-form__photo') {
+        dragSrc = evt.target;
+        dragSrc.style.opacity = '0.5';
+        evt.dataTransfer.effectAllowed = 'move';
+        evt.dataTransfer.setData('text/html', dragSrc.innerHTML);
+      }
+
+      photosField.removeEventListener('change', photosChangeHandler);
+    };
 
     var dragOverHandler = function (evt) {
       evt.preventDefault();
       evt.dataTransfer.dropEffect = 'move';
-      var target = evt.target;
-      if (target && target !== pic && target.nodeName === 'DIV') {
-        picsContainer.insertBefore(pic, target.nextSibling || target);
+    };
+
+    var dragLeaveHandler = function (evt) {
+      if (evt.target.className === 'ad-form__photo') {
+        evt.target.style.borderColor = '#e4e4de';
+      }
+    };
+
+    var dragEnterHandler = function (evt) {
+      if (evt.target.className === 'ad-form__photo') {
+        evt.target.style.borderColor = '#ffaa99';
+      }
+    };
+
+    var dropHandler = function (evt) {
+      evt.stopPropagation();
+      if (dragSrc !== evt.target && evt.target.className === 'ad-form__photo') {
+        evt.target.style.borderColor = '#e4e4de';
+        dragSrc.innerHTML = evt.target.innerHTML;
+        evt.target.innerHTML = evt.dataTransfer.getData('text/html');
       }
     };
 
     var dragEndHandler = function (evt) {
       evt.preventDefault();
-      picsContainer.removeEventListener('dragover', dragOverHandler);
-      picsContainer.removeEventListener('dragend', dragEndHandler);
+      evt.target.style.opacity = '1';
       photosField.addEventListener('change', photosChangeHandler);
-    };
-
-    var dragStartHandler = function (evt) {
-      pic = evt.target;
-      evt.dataTransfer.effectAllowed = 'move';
-      evt.dataTransfer.setData('text/html', pic.innerHTML);
-
-      photosField.removeEventListener('change', photosChangeHandler);
-      pic.addEventListener('dragover', dragOverHandler);
-      pic.addEventListener('dragend', dragEndHandler);
     };
 
     document.querySelector('.map__pin--main').addEventListener('click', function () {
       picsContainer.addEventListener('dragstart', dragStartHandler);
+      picsContainer.addEventListener('dragover', dragOverHandler);
+      picsContainer.addEventListener('dragenter', dragEnterHandler);
+      picsContainer.addEventListener('dragleave', dragLeaveHandler);
+      picsContainer.addEventListener('drop', dropHandler);
+      picsContainer.addEventListener('dragend', dragEndHandler);
     });
     resetBtn.addEventListener('click', function () {
       picsContainer.removeEventListener('dragstart', dragStartHandler);
+      picsContainer.removeEventListener('dragover', dragOverHandler);
+      picsContainer.removeEventListener('dragenter', dragEnterHandler);
+      picsContainer.removeEventListener('dragleave', dragLeaveHandler);
+      picsContainer.removeEventListener('drop', dropHandler);
+      picsContainer.removeEventListener('dragend', dragEndHandler);
     });
   };
 
