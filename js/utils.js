@@ -12,12 +12,26 @@
     this.y = y;
   };
 
-  window.utils = {
+  /* Проверка нажатия Esc */
+  var isPressEsc = function (evt) {
+    return evt.keyCode === ESC_KEY;
+  };
 
-    /* Проверка нажатия Esc */
-    isPressEsc: function (evt) {
-      return evt.keyCode === ESC_KEY;
-    },
+  /* Добавление обработчиков на закрытие модального блока */
+  var setModalHandlers = function (node) {
+    node.addEventListener('click', function () {
+      node.classList.add('hidden');
+    });
+    document.addEventListener('keydown', function (evt) {
+      if (isPressEsc(evt)) {
+        node.classList.add('hidden');
+      }
+    });
+  };
+
+  window.utils = {
+    isPressEsc: isPressEsc,
+    setModalHandlers: setModalHandlers,
 
     /* Добавление атрибута элементам коллекции */
     setAttributeAll: function (collect, attribute, value) {
@@ -49,10 +63,20 @@
 
     /* Вывод ошибок запроса */
     errorHandler: function (error) {
-      var node = document.createElement('div');
-      node.style = window.data.errorStyle;
-      node.textContent = error;
-      document.body.insertAdjacentElement('afterbegin', node);
+      var node = document.querySelector('.error');
+      if (node) {
+        node.classList.remove('hodden');
+      } else {
+        node = document.createElement('div');
+        node.classList.add('error');
+        node.style = window.data.errorStyle;
+        var message = document.createElement('p');
+        message.style = window.data.errorMessageStyle;
+        message.textContent = error;
+        node.appendChild(message);
+        document.body.insertAdjacentElement('afterbegin', node);
+        setModalHandlers(node);
+      }
     },
 
     /* Перемещение элемента */

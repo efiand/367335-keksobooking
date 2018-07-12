@@ -17,6 +17,7 @@
   var filterGuests = filterForm.elements['housing-guests'];
   var filterFeatures = filterForm.querySelectorAll('input');
   var dropZone = document.querySelector('.ad-form__drop-zone');
+  var successMsg = document.querySelector('.success');
 
   /* Данные для фильтрации */
   var houses = Object.keys(window.data.house);
@@ -35,15 +36,7 @@
   };
 
   /* Скрытие окна успешной отправки */
-  var successMsg = document.querySelector('.success');
-  var successMsgClickHandler = function () {
-    successMsg.classList.add('hidden');
-  };
-  var successMsgKeydownHandler = function (evt) {
-    if (window.utils.isPressEsc(evt)) {
-      successMsgClickHandler();
-    }
-  };
+  window.utils.setModalHandlers(successMsg);
 
   /* Координаты центра (в активном состоянии - середины нижнего края) круглой метки */
   var addPinCoords = function () {
@@ -70,8 +63,6 @@
     window.form.roomNumberChangeHandler();
     window.pin.activate();
     dropZone.addEventListener('dragenter', picsDropHandler);
-    document.removeEventListener('click', successMsgClickHandler);
-    document.removeEventListener('keydown', successMsgKeydownHandler);
   };
 
   /* Неактивное состояние */
@@ -193,8 +184,6 @@
         setInactiveState();
         successMsg.classList.remove('hidden');
       }, window.utils.errorHandler);
-      document.addEventListener('click', successMsgClickHandler);
-      document.addEventListener('keydown', successMsgKeydownHandler);
     }
   });
 

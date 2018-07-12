@@ -9,7 +9,8 @@
       HIGH: 50000,
       MAX: 10000000
     },
-    errorStyle: 'position: fixed; top: 0; left: 0; z-index: 100; width: 100%; padding: 30px; text-align: center; color: #ffffff; background-color: rgba(0, 0, 0, 0.6)',
+    errorStyle: 'position: fixed; top: 0; left: 0; z-index: 2; box-sizing: border-box; width: 100%; height: 100%; overflow: auto; padding-top: 300px; text-align: center; vertical-align: middle; background-color: rgba(0, 0, 0, 0.8)',
+    errorMessageStyle: 'font-weight: 700; font-size: 50px; color: #ffaa99',
     house: {
       palace: 'Дворец',
       flat: 'Квартира',
