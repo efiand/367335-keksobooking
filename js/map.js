@@ -9,6 +9,7 @@
   var initTop = mainPin.style.top;
   var isActive = false;
   var isLoadData = false;
+  var filterNode = document.querySelector('.map__filters-container');
   var filterForm = document.querySelector('.map__filters');
   var filterFields = filterForm.querySelectorAll('select, input');
   var filterHouse = filterForm.elements['housing-type'];
@@ -35,15 +36,12 @@
     }).slice(0, window.data.pinsLimit);
   };
 
-  /* Скрытие окна успешной отправки */
-  window.utils.setModalHandlers(successMsg);
-
   /* Координаты центра (в активном состоянии - середины нижнего края) круглой метки */
   var addPinCoords = function () {
     window.form.address.value = window.utils.getCoords(mainPin, (isActive ? 'bottom' : 'center'));
   };
 
-  /* Перемещение метки */
+  /* Перемещение главной метки */
   var pinMoveHandler = function (evt) {
     window.utils.dragDropHandler(evt, mainPin, map, addPinCoords);
   };
@@ -59,6 +57,7 @@
     map.classList.remove('map--faded');
     window.form.container.classList.remove('ad-form--disabled');
     window.utils.removeAttributeAll(window.form.adGroups, 'disabled');
+    filterNode.classList.remove('hidden');
     window.form.houseTypeChangeHandler();
     window.form.roomNumberChangeHandler();
     window.pin.activate();
@@ -76,6 +75,7 @@
     window.form.container.classList.add('ad-form--disabled');
     window.pin.deactivate();
     window.utils.setAttributeAll(window.form.adGroups, 'disabled');
+    filterNode.classList.add('hidden');
     dropZone.removeEventListener('dragenter', picsDropHandler);
     mainPin.style.left = initLeft;
     mainPin.style.top = initTop;
@@ -138,13 +138,15 @@
 
     map.addEventListener('click', function (evt) {
       var title = evt.target.alt || '';
+      var thisPin = evt.target.parentNode;
       if (evt.target.className === 'map__pin') {
         title = evt.target.querySelector('img').alt;
+        thisPin = evt.target;
       }
       if (title) {
         for (i = 0; i < data.length; i++) {
           if (data[i].offer.title === title) {
-            window.pin.addPinListener(data[i]);
+            window.pin.addPinListener(data[i], thisPin);
             break;
           }
         }
@@ -160,6 +162,12 @@
 
   /* Стартовые координаты метки */
   addPinCoords();
+
+  /* Дефолтное состояние фильтров */
+  filterNode.classList.add('hidden');
+
+  /* Скрытие окна успешной отправки */
+  window.utils.setModalHandlers(successMsg);
 
   /* Подписка на перемещение главной метки */
   mainPin.addEventListener('mousedown', pinMoveHandler);

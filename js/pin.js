@@ -24,9 +24,17 @@
     return pin;
   };
 
+  /* Назначение класса меткам */
+  var setPinsClass = function (target) {
+    for (var i = 0; i < pins.length; i++) {
+      pins[i].className = 'map__pin' + (target && pins[i] === target ? ' map__pin--active' : '');
+    }
+  };
+
   /* Скрытие объявления */
   var closePopupClickHandler = function () {
     mapCard.classList.add('hidden');
+    setPinsClass();
   };
   var closePopupKeydownHandler = function (evt) {
     if (window.utils.isPressEsc(evt)) {
@@ -35,7 +43,8 @@
   };
 
   /* Показ объявлений по клику на метки */
-  var addPinListener = function (data) {
+  var addPinListener = function (data, target) {
+    setPinsClass(target);
     mapCard.innerHTML = window.card.renderAnnouncement(data, mapCardTemplate).innerHTML;
     mapCard.classList.remove('hidden');
     mapCard.querySelector('.popup__close').addEventListener('click', closePopupClickHandler);
