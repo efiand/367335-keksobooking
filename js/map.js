@@ -9,6 +9,7 @@
   var initTop = mainPin.style.top;
   var isActive = false;
   var isLoadData = false;
+  var filterNode = document.querySelector('.map__filters-container');
   var filterForm = document.querySelector('.map__filters');
   var filterFields = filterForm.querySelectorAll('select, input');
   var filterHouse = filterForm.elements['housing-type'];
@@ -16,6 +17,8 @@
   var filterRooms = filterForm.elements['housing-rooms'];
   var filterGuests = filterForm.elements['housing-guests'];
   var filterFeatures = filterForm.querySelectorAll('input');
+  var dropZone = document.querySelector('.ad-form__drop-zone');
+  var successMsg = document.querySelector('.success');
 
   /* Данные для фильтрации */
   var houses = Object.keys(window.data.house);
@@ -33,25 +36,19 @@
     }).slice(0, window.data.pinsLimit);
   };
 
-  /* Скрытие окна успешной отправки */
-  var successMsg = document.querySelector('.success');
-  var successMsgClickHandler = function () {
-    successMsg.classList.add('hidden');
-  };
-  var successMsgKeydownHandler = function (evt) {
-    if (window.utils.isPressEsc(evt)) {
-      successMsgClickHandler();
-    }
-  };
-
   /* Координаты центра (в активном состоянии - середины нижнего края) круглой метки */
   var addPinCoords = function () {
     window.form.address.value = window.utils.getCoords(mainPin, (isActive ? 'bottom' : 'center'));
   };
 
-  /* Перемещение метки */
+  /* Перемещение главной метки */
   var pinMoveHandler = function (evt) {
     window.utils.dragDropHandler(evt, mainPin, map, addPinCoords);
+  };
+
+  /* Drag and drop фото в браузер */
+  var picsDropHandler = function (evt) {
+    window.upload.dropZoneHandler(evt, dropZone, window.upload.doList);
   };
 
   /* Активное состояние */
@@ -60,11 +57,11 @@
     map.classList.remove('map--faded');
     window.form.container.classList.remove('ad-form--disabled');
     window.utils.removeAttributeAll(window.form.adGroups, 'disabled');
+    filterNode.classList.remove('hidden');
     window.form.houseTypeChangeHandler();
     window.form.roomNumberChangeHandler();
     window.pin.activate();
-    document.removeEventListener('click', successMsgClickHandler);
-    document.removeEventListener('keydown', successMsgKeydownHandler);
+    dropZone.addEventListener('dragenter', picsDropHandler);
   };
 
   /* Неактивное состояние */
@@ -78,6 +75,8 @@
     window.form.container.classList.add('ad-form--disabled');
     window.pin.deactivate();
     window.utils.setAttributeAll(window.form.adGroups, 'disabled');
+    filterNode.classList.add('hidden');
+    dropZone.removeEventListener('dragenter', picsDropHandler);
     mainPin.style.left = initLeft;
     mainPin.style.top = initTop;
     addPinCoords();
@@ -137,6 +136,23 @@
     setActiveState();
     addPinCoords();
 
+    map.addEventListener('click', function (evt) {
+      var title = evt.target.alt || '';
+      var thisPin = evt.target.parentNode;
+      if (evt.target.className === 'map__pin') {
+        title = evt.target.querySelector('img').alt;
+        thisPin = evt.target;
+      }
+      if (title) {
+        for (i = 0; i < data.length; i++) {
+          if (data[i].offer.title === title) {
+            window.pin.addPinListener(data[i], thisPin);
+            break;
+          }
+        }
+      }
+    });
+
     /* Фильтрация меток */
     for (var i = 0; i < filterFields.length; i++) {
       fieldsHandler(filterFields[i], data, filterOptions);
@@ -147,14 +163,22 @@
   /* Стартовые координаты метки */
   addPinCoords();
 
+  /* Дефолтное состояние фильтров */
+  filterNode.classList.add('hidden');
+
+  /* Скрытие окна успешной отправки */
+  window.utils.setModalHandlers(successMsg);
+
   /* Подписка на перемещение главной метки */
   mainPin.addEventListener('mousedown', pinMoveHandler);
 
   /* Активация карты (по отпусканию мыши на кругой метке) */
   mainPin.addEventListener('mouseup', function () {
     if (!isLoadData) {
+
       /* Получение данных и их обработка */
       window.backend.load(loadHandler, window.utils.errorHandler);
+
     } else if (!isActive) {
       setActiveState();
     }
@@ -168,8 +192,6 @@
         setInactiveState();
         successMsg.classList.remove('hidden');
       }, window.utils.errorHandler);
-      document.addEventListener('click', successMsgClickHandler);
-      document.addEventListener('keydown', successMsgKeydownHandler);
     }
   });
 

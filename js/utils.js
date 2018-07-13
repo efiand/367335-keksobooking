@@ -6,12 +6,32 @@
   var i;
   var lastTimeout;
 
-  window.utils = {
+  /* Конструктор объекта с координатами */
+  var Coords = function (x, y) {
+    this.x = x;
+    this.y = y;
+  };
 
-    /* Проверка нажатия Esc */
-    isPressEsc: function (evt) {
-      return evt.keyCode === ESC_KEY;
-    },
+  /* Проверка нажатия Esc */
+  var isPressEsc = function (evt) {
+    return evt.keyCode === ESC_KEY;
+  };
+
+  /* Добавление обработчиков на закрытие модального блока */
+  var setModalHandlers = function (node) {
+    node.addEventListener('click', function () {
+      node.classList.add('hidden');
+    });
+    document.addEventListener('keydown', function (evt) {
+      if (isPressEsc(evt)) {
+        node.classList.add('hidden');
+      }
+    });
+  };
+
+  window.utils = {
+    isPressEsc: isPressEsc,
+    setModalHandlers: setModalHandlers,
 
     /* Добавление атрибута элементам коллекции */
     setAttributeAll: function (collect, attribute, value) {
@@ -43,10 +63,20 @@
 
     /* Вывод ошибок запроса */
     errorHandler: function (error) {
-      var node = document.createElement('div');
-      node.style = window.data.errorStyle;
-      node.textContent = error;
-      document.body.insertAdjacentElement('afterbegin', node);
+      var node = document.querySelector('.error');
+      if (node) {
+        node.classList.remove('hodden');
+      } else {
+        node = document.createElement('div');
+        node.classList.add('error');
+        node.style = window.data.errorStyle;
+        var message = document.createElement('p');
+        message.style = window.data.errorMessageStyle;
+        message.textContent = error;
+        node.appendChild(message);
+        document.body.insertAdjacentElement('afterbegin', node);
+        setModalHandlers(node);
+      }
     },
 
     /* Перемещение элемента */
@@ -61,37 +91,25 @@
           max: window.data.limitY.max - control.clientHeight
         }
       };
-      var startCoords = {
-        x: evt.clientX,
-        y: evt.clientY
-      };
+      var startCoords = new Coords(evt.clientX, evt.clientY);
 
       var mouseMoveHandler = function (dropEvt) {
-        var diffCoords = {
-          x: startCoords.x - dropEvt.clientX,
-          y: startCoords.y - dropEvt.clientY
+        var diffCoords = new Coords(startCoords.x - dropEvt.clientX, startCoords.y - dropEvt.clientY);
+        startCoords.x = dropEvt.clientX;
+        startCoords.y = dropEvt.clientY;
+
+        var setProperty = function (elem, propertyJS) {
+          var value = control[propertyJS] - diffCoords[elem];
+          if (value > coordLimits[elem].max) {
+            value = coordLimits[elem].max;
+          } else if (value < coordLimits[elem].min) {
+            value = coordLimits[elem].min;
+          }
+          return value + 'px';
         };
-        startCoords = {
-          x: dropEvt.clientX,
-          y: dropEvt.clientY
-        };
 
-        var left = control.offsetLeft - diffCoords.x;
-        if (left > coordLimits.x.max) {
-          left = coordLimits.x.max;
-        } else if (left < coordLimits.x.min) {
-          left = coordLimits.x.min;
-        }
-
-        var top = control.offsetTop - diffCoords.y;
-        if (top > coordLimits.y.max) {
-          top = coordLimits.y.max;
-        } else if (top < coordLimits.y.min) {
-          top = coordLimits.y.min;
-        }
-
-        control.style.left = left + 'px';
-        control.style.top = top + 'px';
+        control.style.left = setProperty('x', 'offsetLeft');
+        control.style.top = setProperty('y', 'offsetTop');
       };
 
       var mouseUpHandler = function () {
@@ -118,6 +136,21 @@
         window.clearTimeout(lastTimeout);
       }
       lastTimeout = window.setTimeout(fun, window.data.timeout);
+    },
+
+    /* Корректировка существительных после числительных */
+    numDecline: function (num, nominative, genetiveSingular, genetivePlural) {
+      var answer = genetivePlural;
+      var numLast = parseInt(num.toString().slice(-1), 10);
+      var numLastDecim = parseInt(num.toString().slice(-2, -1), 10);
+      if (numLastDecim !== 1) {
+        if (numLast === 1) {
+          answer = nominative;
+        } else if (numLast > 1 && numLast < 5) {
+          answer = genetiveSingular;
+        }
+      }
+      return num + ' ' + answer;
     }
   };
 })();
