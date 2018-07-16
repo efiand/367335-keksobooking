@@ -3,36 +3,44 @@
 
 (function () {
   var map = document.querySelector('.map');
+  var successMsg = document.querySelector('.success');
+  var dropZone = window.form.container.querySelector('.ad-form__drop-zone');
   var resetBtn = window.form.container.querySelector('[type="reset"]');
-  var mainPin = document.querySelector('.map__pin--main');
+  var mainPin = map.querySelector('.map__pin--main');
   var initLeft = mainPin.style.left;
   var initTop = mainPin.style.top;
   var isActive = false;
   var isLoadData = false;
-  var filterNode = document.querySelector('.map__filters-container');
-  var filterForm = document.querySelector('.map__filters');
+  var filterNode = map.querySelector('.map__filters-container');
+  var filterForm = map.querySelector('.map__filters');
   var filterFields = filterForm.querySelectorAll('select, input');
-  var filterHouse = filterForm.elements['housing-type'];
-  var filterPrice = filterForm.elements['housing-price'];
-  var filterRooms = filterForm.elements['housing-rooms'];
-  var filterGuests = filterForm.elements['housing-guests'];
+  var filterHouse = filterForm.querySelector('#housing-type');
+  var filterPrice = filterForm.querySelector('#housing-price');
+  var filterRooms = filterForm.querySelector('#housing-rooms');
+  var filterGuests = filterForm.querySelector('#housing-guests');
   var filterFeatures = filterForm.querySelectorAll('input');
-  var dropZone = document.querySelector('.ad-form__drop-zone');
-  var successMsg = document.querySelector('.success');
 
   /* Данные для фильтрации */
   var houses = Object.keys(window.data.house);
   var filterOptions = {
     price: {}
   };
-  var doFilter = function (data, options, isActivate) {
+  var doFilter = function (data, options) {
+    var doFilterFeature = function (feature, featureData) {
+      return options.features.indexOf(feature) > -1 ? featureData.offer.features.indexOf(feature) > -1 : featureData;
+    };
     return data.filter(function (elem) {
       return options.type.indexOf(elem.offer.type) > -1
         && elem.offer.price >= options.price.min
         && elem.offer.price < options.price.max
         && (options.rooms < 0 ? (elem.offer.rooms >= 0) : (elem.offer.rooms === options.rooms))
         && (options.guests < 0 ? (elem.offer.guests >= 0) : (elem.offer.guests === options.guests))
-        && (!isActivate ? (elem.offer.features.sort().join() === options.features.sort().join()) : elem.offer.features.length);
+        && doFilterFeature('wifi', elem)
+        && doFilterFeature('dishwasher', elem)
+        && doFilterFeature('parking', elem)
+        && doFilterFeature('washer', elem)
+        && doFilterFeature('elevator', elem)
+        && doFilterFeature('conditioner', elem);
     }).slice(0, window.data.pinsLimit);
   };
 
@@ -76,6 +84,12 @@
     window.pin.deactivate();
     window.utils.setAttributeAll(window.form.adGroups, 'disabled');
     filterNode.classList.add('hidden');
+    filterForm.querySelectorAll('select').forEach(function (elem) {
+      elem.value = 'any';
+    });
+    filterFeatures.forEach(function (elem) {
+      elem.checked = false;
+    });
     dropZone.removeEventListener('dragenter', picsDropHandler);
     mainPin.style.left = initLeft;
     mainPin.style.top = initTop;
@@ -83,7 +97,7 @@
   };
 
   /* Смена фильтра */
-  var renderFilteredPens = function (data, options, isActivate) {
+  var renderFilteredPens = function (data, options) {
     options.type = (filterHouse.value === 'any') ? houses : [filterHouse.value];
 
     options.price.min = 0;
@@ -116,7 +130,7 @@
       }
     });
 
-    window.pin.render(doFilter(data, options, isActivate));
+    window.pin.render(doFilter(data, options));
   };
   var fieldsHandler = function (elem, data, options) {
     elem.addEventListener('change', function () {
@@ -186,8 +200,8 @@
 
   /* Обработка сабмита */
   window.form.submitBtn.addEventListener('click', function (evt) {
-    evt.preventDefault();
     if (window.form.container.checkValidity()) {
+      evt.preventDefault();
       window.backend.save(new FormData(window.form.container), function () {
         setInactiveState();
         successMsg.classList.remove('hidden');

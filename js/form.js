@@ -89,9 +89,6 @@
   });
 
   /* Валидация */
-  submitBtn.addEventListener('click', function () {
-    adForm.checkValidity();
-  });
   for (var i = 0; i < checkList.length; i++) {
     addInvalidListener(checkList[i]);
   }

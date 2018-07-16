@@ -17,20 +17,19 @@
   };
 
   var resetPhotos = function () {
-    var pics = document.querySelectorAll('.ad-form__photo');
-    for (var i = 0; i < pics.length; i++) {
+    document.querySelectorAll('.ad-form__photo').forEach(function (elem, i) {
       if (i) {
-        pics[i].remove();
+        elem.remove();
       } else {
-        pics[i].innerHTML = '';
-        pics[i].style.cursor = 'default';
+        elem.innerHTML = '';
+        elem.style.cursor = 'default';
       }
-    }
+    });
     isFirstUpload = true;
   };
 
   /* Получение изображений */
-  var showPics = function (field, previewNodeClass, parentNodeClass) {
+  var showPictures = function (field, previewNodeClass, parentNodeClass) {
     var isPicLoaded = false;
     var getData = function (file, previewImg, isMultiply) {
       isMultiply = isMultiply || false;
@@ -86,11 +85,11 @@
     }
   };
   var photosChangeHandler = function () {
-    showPics(photosField, 'ad-form__photo', 'ad-form__photo-container');
+    showPictures(photosField, 'ad-form__photo', 'ad-form__photo-container');
   };
 
   /* Сортировка картинок перетаскиванием */
-  var sortPics = function (picsContainer) {
+  var sortPictures = function (picturesContainer) {
     var dragSrc;
 
     var dragStartHandler = function (evt) {
@@ -137,26 +136,26 @@
     };
 
     document.querySelector('.map__pin--main').addEventListener('click', function () {
-      picsContainer.addEventListener('dragstart', dragStartHandler);
-      picsContainer.addEventListener('dragover', dragOverHandler);
-      picsContainer.addEventListener('dragenter', dragEnterHandler);
-      picsContainer.addEventListener('dragleave', dragLeaveHandler);
-      picsContainer.addEventListener('drop', dropHandler);
-      picsContainer.addEventListener('dragend', dragEndHandler);
+      picturesContainer.addEventListener('dragstart', dragStartHandler);
+      picturesContainer.addEventListener('dragover', dragOverHandler);
+      picturesContainer.addEventListener('dragenter', dragEnterHandler);
+      picturesContainer.addEventListener('dragleave', dragLeaveHandler);
+      picturesContainer.addEventListener('drop', dropHandler);
+      picturesContainer.addEventListener('dragend', dragEndHandler);
     });
     resetBtn.addEventListener('click', function () {
-      picsContainer.removeEventListener('dragstart', dragStartHandler);
-      picsContainer.removeEventListener('dragover', dragOverHandler);
-      picsContainer.removeEventListener('dragenter', dragEnterHandler);
-      picsContainer.removeEventListener('dragleave', dragLeaveHandler);
-      picsContainer.removeEventListener('drop', dropHandler);
-      picsContainer.removeEventListener('dragend', dragEndHandler);
+      picturesContainer.removeEventListener('dragstart', dragStartHandler);
+      picturesContainer.removeEventListener('dragover', dragOverHandler);
+      picturesContainer.removeEventListener('dragenter', dragEnterHandler);
+      picturesContainer.removeEventListener('dragleave', dragLeaveHandler);
+      picturesContainer.removeEventListener('drop', dropHandler);
+      picturesContainer.removeEventListener('dragend', dragEndHandler);
     });
   };
 
 
   avatarField.addEventListener('change', function () {
-    showPics(avatarField, 'ad-form-header__preview', 'ad-form-header__preview');
+    showPictures(avatarField, 'ad-form-header__preview', 'ad-form-header__preview');
   });
 
   photosField.setAttribute('multiple', 'true');
@@ -167,7 +166,7 @@
     resetPhotos();
   });
 
-  sortPics(document.querySelector('.ad-form__photo-container'));
+  sortPictures(document.querySelector('.ad-form__photo-container'));
 
 
   window.upload = {

@@ -8,7 +8,7 @@
   var mapCard;
   var mapCardClose;
   var mapCardTemplate = templateContent.querySelector('.map__card');
-  var pinsBlock = document.querySelector('.map__pins');
+  var pinsBlock = map.querySelector('.map__pins');
   var pinsSelector = '.map__pin:not(.map__pin--main)';
   var pins = pinsBlock.querySelectorAll(pinsSelector);
   var wasFirstRender = false;
@@ -26,9 +26,9 @@
 
   /* Назначение класса меткам */
   var setPinsClass = function (target) {
-    for (var i = 0; i < pins.length; i++) {
-      pins[i].className = 'map__pin' + (target && pins[i] === target ? ' map__pin--active' : '');
-    }
+    pins.forEach(function (elem) {
+      elem.className = 'map__pin' + (target && elem === target ? ' map__pin--active' : '');
+    });
   };
 
   /* Скрытие объявления */
@@ -61,15 +61,15 @@
       }
 
       /* Удаление существующих меток */
-      for (var i = 0; i < pins.length; i++) {
-        pinsBlock.removeChild(pins[i]);
-      }
+      pins.forEach(function (elem) {
+        pinsBlock.removeChild(elem);
+      });
 
       /* Генерация новых */
       var pinsFragment = document.createDocumentFragment();
-      for (i = 0; i < workData.length; i++) {
-        pinsFragment.appendChild(renderPin(workData[i], templateContent.querySelector('.map__pin')));
-      }
+      workData.forEach(function (elem) {
+        pinsFragment.appendChild(renderPin(elem, templateContent.querySelector('.map__pin')));
+      });
       pinsBlock.appendChild(pinsFragment);
       pins = pinsBlock.querySelectorAll(pinsSelector);
 
