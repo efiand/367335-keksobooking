@@ -103,6 +103,7 @@
     },
 
     closePopupClickHandler: closePopupClickHandler,
-    addPinListener: addPinListener
+    addPinListener: addPinListener,
+    map: map
   };
 })();

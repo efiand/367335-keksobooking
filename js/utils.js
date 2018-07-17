@@ -3,7 +3,6 @@
 
 (function () {
   var ESC_KEY = 27;
-  var i;
   var lastTimeout;
 
   /* Конструктор объекта с координатами */
@@ -35,30 +34,30 @@
 
     /* Добавление атрибута элементам коллекции */
     setAttributeAll: function (collect, attribute, value) {
-      for (i = 0; i < collect.length; i++) {
-        collect[i].setAttribute(attribute, value || '');
-      }
+      collect.forEach(function (elem) {
+        elem.setAttribute(attribute, value || '');
+      });
     },
 
     /* Удаление атрибута  у элементов коллекции */
     removeAttributeAll: function (collect, attribute) {
-      for (i = 0; i < collect.length; i++) {
-        collect[i].removeAttribute(attribute);
-      }
+      collect.forEach(function (elem) {
+        elem.removeAttribute(attribute);
+      });
     },
 
     /* Добавление класса элементам коллекции */
     addClassAll: function (collect, className) {
-      for (i = 0; i < collect.length; i++) {
-        collect[i].classList.add(className);
-      }
+      collect.forEach(function (elem) {
+        elem.classList.add(className);
+      });
     },
 
     /* Удаление класса у элементов коллекции */
     removeClassAll: function (collect, className) {
-      for (i = 0; i < collect.length; i++) {
-        collect[i].classList.remove(className);
-      }
+      collect.forEach(function (elem) {
+        elem.classList.remove(className);
+      });
     },
 
     /* Вывод ошибок запроса */

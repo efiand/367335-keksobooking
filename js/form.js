@@ -33,13 +33,13 @@
 
   var roomNumberChangeHandler = function () {
     roomOptions = roomLimits[roomNumber.value];
-    for (i = 0; i < capacityOptions.length; i++) {
-      if (roomOptions.indexOf(capacityOptions[i].value) === -1) {
-        capacityOptions[i].setAttribute('hidden', '');
+    capacityOptions.forEach(function (elem) {
+      if (roomOptions.indexOf(elem.value) === -1) {
+        elem.setAttribute('hidden', '');
       } else {
-        capacityOptions[i].removeAttribute('hidden');
+        elem.removeAttribute('hidden');
       }
-    }
+    });
     capacityChangeHandler();
   };
 
@@ -89,9 +89,9 @@
   });
 
   /* Валидация */
-  for (var i = 0; i < checkList.length; i++) {
-    addInvalidListener(checkList[i]);
-  }
+  checkList.forEach(function (elem) {
+    addInvalidListener(elem);
+  });
 
 
   window.form = {

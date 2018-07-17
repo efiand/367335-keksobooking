@@ -2,15 +2,14 @@
 /* Карта, карточки и метки на ней */
 
 (function () {
-  var map = document.querySelector('.map');
   var successMsg = document.querySelector('.success');
   var dropZone = window.form.container.querySelector('.ad-form__drop-zone');
+  var dropZoneAvatar = window.form.container.querySelector('.ad-form-header__drop-zone');
   var resetBtn = window.form.container.querySelector('[type="reset"]');
+  var map = window.pin.map;
   var mainPin = map.querySelector('.map__pin--main');
   var initLeft = mainPin.style.left;
   var initTop = mainPin.style.top;
-  var isActive = false;
-  var isLoadData = false;
   var filterNode = map.querySelector('.map__filters-container');
   var filterForm = map.querySelector('.map__filters');
   var filterFields = filterForm.querySelectorAll('select, input');
@@ -19,6 +18,8 @@
   var filterRooms = filterForm.querySelector('#housing-rooms');
   var filterGuests = filterForm.querySelector('#housing-guests');
   var filterFeatures = filterForm.querySelectorAll('input');
+  var isActive = false;
+  var isLoadData = false;
 
   /* Данные для фильтрации */
   var houses = Object.keys(window.data.house);
@@ -56,7 +57,10 @@
 
   /* Drag and drop фото в браузер */
   var picsDropHandler = function (evt) {
-    window.upload.dropZoneHandler(evt, dropZone, window.upload.doList);
+    window.upload.dropZoneHandler(evt, dropZone, window.upload.photosField);
+  };
+  var avatarDropHandler = function (evt) {
+    window.upload.dropZoneHandler(evt, dropZoneAvatar, window.upload.avatarField);
   };
 
   /* Активное состояние */
@@ -70,15 +74,18 @@
     window.form.roomNumberChangeHandler();
     window.pin.activate();
     dropZone.addEventListener('dragenter', picsDropHandler);
+    dropZoneAvatar.addEventListener('dragenter', avatarDropHandler);
   };
 
   /* Неактивное состояние */
   var setInactiveState = function () {
     isActive = false;
-    for (var i = 0; i < window.form.checkList.length; i++) {
-      window.form.checkList[i].style.boxShadow = 'none';
-    }
+    window.form.checkList.forEach(function (elem) {
+      elem.style.boxShadow = 'none';
+    });
     window.form.container.reset();
+    window.form.container.querySelector('.ad-form-header__preview img').src = window.data.defaultAvatar;
+    window.upload.resetPhotos();
     map.classList.add('map--faded');
     window.form.container.classList.add('ad-form--disabled');
     window.pin.deactivate();
@@ -91,6 +98,7 @@
       elem.checked = false;
     });
     dropZone.removeEventListener('dragenter', picsDropHandler);
+    dropZoneAvatar.removeEventListener('dragenter', avatarDropHandler);
     mainPin.style.left = initLeft;
     mainPin.style.top = initTop;
     addPinCoords();
@@ -158,7 +166,7 @@
         thisPin = evt.target;
       }
       if (title) {
-        for (i = 0; i < data.length; i++) {
+        for (var i = 0; i < data.length; i++) {
           if (data[i].offer.title === title) {
             window.pin.addPinListener(data[i], thisPin);
             break;
@@ -168,9 +176,9 @@
     });
 
     /* Фильтрация меток */
-    for (var i = 0; i < filterFields.length; i++) {
-      fieldsHandler(filterFields[i], data, filterOptions);
-    }
+    filterFields.forEach(function (elem) {
+      fieldsHandler(elem, data, filterOptions);
+    });
   };
 
 

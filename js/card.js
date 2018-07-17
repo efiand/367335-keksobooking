@@ -19,40 +19,40 @@
           'popup__features': data.offer.features.length ? '.' : '',
           'popup__photos': data.offer.photos.length ? '.' : ''
         };
-        var selectors = Object.keys(selectorToContent);
-        var j;
-        for (var i = 0; i < selectors.length; i++) {
-          var node = announcement.querySelector('.' + selectors[i]);
-          if (selectorToContent[selectors[i]]) {
-            node.textContent = selectorToContent[selectors[i]];
-            if (selectors[i] === 'popup__text--price') {
+
+        Object.keys(selectorToContent).forEach(function (elem) {
+          var node = announcement.querySelector('.' + elem);
+          if (selectorToContent[elem]) {
+            node.textContent = selectorToContent[elem];
+            if (elem === 'popup__text--price') {
               var priceSpan = document.createElement('span');
               priceSpan.textContent = '/ночь';
               node.appendChild(priceSpan);
-            } else if (selectors[i] === 'popup__features') {
+            } else if (elem === 'popup__features') {
               var features = document.createDocumentFragment();
-              for (j = 0; j < data.offer.features.length; j++) {
+              data.offer.features.forEach(function (featuresElem) {
                 var feature = document.createElement('li');
                 feature.classList.add('popup__feature');
-                feature.classList.add('popup__feature--' + data.offer.features[j]);
+                feature.classList.add('popup__feature--' + featuresElem);
                 features.appendChild(feature);
-              }
+              });
               node.innerHTML = '';
               node.appendChild(features);
-            } else if (selectors[i] === 'popup__photos') {
+            } else if (elem === 'popup__photos') {
               var photos = document.createDocumentFragment();
-              for (j = 0; j < data.offer.photos.length; j++) {
+              data.offer.photos.forEach(function (photosElem) {
                 var imgTemplate = photoTemplate.cloneNode(true);
-                imgTemplate.src = data.offer.photos[j];
+                imgTemplate.src = photosElem;
                 photos.appendChild(imgTemplate);
-              }
+              });
               node.innerHTML = '';
               node.appendChild(photos);
             }
           } else {
             node.classList.add('visually-hidden');
           }
-        }
+        });
+
         announcement.querySelector('.popup__avatar').src = data.author.avatar || window.data.defaultAvatar;
       }
       return announcement;
