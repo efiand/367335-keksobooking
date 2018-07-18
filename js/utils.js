@@ -80,10 +80,11 @@
 
     /* Перемещение элемента */
     dragDropHandler: function (evt, control, area, callback) {
+      var offsetControl = Math.floor(control.clientWidth / 2);
       var coordLimits = {
         x: {
-          min: 0,
-          max: area.clientWidth - control.clientWidth
+          min: 0 - offsetControl,
+          max: area.clientWidth - offsetControl
         },
         y: {
           min: window.data.LimitY.MIN - control.clientHeight,
@@ -97,12 +98,12 @@
         startCoords.x = dropEvt.clientX;
         startCoords.y = dropEvt.clientY;
 
-        var setProperty = function (elem, propertyJS) {
-          var value = control[propertyJS] - diffCoords[elem];
-          if (value > coordLimits[elem].max) {
-            value = coordLimits[elem].max;
-          } else if (value < coordLimits[elem].min) {
-            value = coordLimits[elem].min;
+        var setProperty = function (axis, propertyJS) {
+          var value = control[propertyJS] - diffCoords[axis];
+          if (value > coordLimits[axis].max) {
+            value = coordLimits[axis].max;
+          } else if (value < coordLimits[axis].min) {
+            value = coordLimits[axis].min;
           }
           return value + 'px';
         };

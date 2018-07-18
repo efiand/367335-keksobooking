@@ -57,7 +57,14 @@
 
   /* Перемещение главной метки */
   var pinMoveHandler = function (evt) {
-    window.utils.dragDropHandler(evt, mainPin, map, addPinCoords);
+    window.utils.dragDropHandler(evt, mainPin, map, function () {
+      addPinCoords();
+      if (!isLoadData) {
+        window.backend.load(loadHandler, window.utils.errorHandler);
+      } else if (!isActive) {
+        setActiveState();
+      }
+    });
   };
 
   /* Drag and drop фото в браузер */
@@ -194,18 +201,6 @@
 
   /* Подписка на перемещение главной метки */
   mainPin.addEventListener('mousedown', pinMoveHandler);
-
-  /* Активация карты (по отпусканию мыши на кругой метке) */
-  mainPin.addEventListener('mouseup', function () {
-    if (!isLoadData) {
-
-      /* Получение данных и их обработка */
-      window.backend.load(loadHandler, window.utils.errorHandler);
-
-    } else if (!isActive) {
-      setActiveState();
-    }
-  });
 
   /* Обработка сабмита */
   window.form.submitBtn.addEventListener('click', function (evt) {
