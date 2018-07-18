@@ -33,29 +33,29 @@
     setModalHandlers: setModalHandlers,
 
     /* Добавление атрибута элементам коллекции */
-    setAttributeAll: function (collect, attribute, value) {
-      collect.forEach(function (elem) {
+    setAttributeAll: function (elements, attribute, value) {
+      elements.forEach(function (elem) {
         elem.setAttribute(attribute, value || '');
       });
     },
 
     /* Удаление атрибута  у элементов коллекции */
-    removeAttributeAll: function (collect, attribute) {
-      collect.forEach(function (elem) {
+    removeAttributeAll: function (elements, attribute) {
+      elements.forEach(function (elem) {
         elem.removeAttribute(attribute);
       });
     },
 
     /* Добавление класса элементам коллекции */
-    addClassAll: function (collect, className) {
-      collect.forEach(function (elem) {
+    addClassAll: function (elements, className) {
+      elements.forEach(function (elem) {
         elem.classList.add(className);
       });
     },
 
     /* Удаление класса у элементов коллекции */
-    removeClassAll: function (collect, className) {
-      collect.forEach(function (elem) {
+    removeClassAll: function (elements, className) {
+      elements.forEach(function (elem) {
         elem.classList.remove(className);
       });
     },
