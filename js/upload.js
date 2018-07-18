@@ -72,7 +72,7 @@
     } else {
       resetPhotos();
       var parent = document.querySelector('.' + parentNodeClass);
-      field.files.forEach(function (elem) {
+      Array.from(field.files).forEach(function (elem) {
         var img = document.createElement('img');
         img.style.height = '70px';
         img.style.position = 'absolute';
