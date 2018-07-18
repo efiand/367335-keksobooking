@@ -45,7 +45,7 @@
   /* Показ объявлений по клику на метки */
   var addPinListener = function (data, target) {
     setPinsClass(target);
-    mapCard.innerHTML = window.card.renderAnnouncement(data, mapCardTemplate).innerHTML;
+    mapCard.innerHTML = window.renderAnnouncement(data, mapCardTemplate).innerHTML;
     mapCard.classList.remove('hidden');
     mapCard.querySelector('.popup__close').addEventListener('click', closePopupClickHandler);
   };
@@ -79,7 +79,7 @@
       }
 
       /* Добавление объявления на карту */
-      map.insertBefore(window.card.renderAnnouncement(workData[0], mapCardTemplate), map.querySelector('.map__filters-container'));
+      map.insertBefore(window.renderAnnouncement(workData[0], mapCardTemplate), map.querySelector('.map__filters-container'));
       mapCard = map.querySelector('.map__card');
       wasFirstRender = true;
       mapCardClose = mapCard.querySelector('.popup__close');
