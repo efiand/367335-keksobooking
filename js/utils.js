@@ -68,9 +68,9 @@
       } else {
         node = document.createElement('div');
         node.classList.add('error');
-        node.style = window.data.errorStyle;
+        node.style = window.data.ERROR_STYLE;
         var message = document.createElement('p');
-        message.style = window.data.errorMessageStyle;
+        message.style = window.data.ERROR_MESSAGE_STYLE;
         message.textContent = error;
         node.appendChild(message);
         document.body.insertAdjacentElement('afterbegin', node);
@@ -86,8 +86,8 @@
           max: area.clientWidth - control.clientWidth
         },
         y: {
-          min: window.data.limitY.min - control.clientHeight,
-          max: window.data.limitY.max - control.clientHeight
+          min: window.data.LimitY.MIN - control.clientHeight,
+          max: window.data.LimitY.MAX - control.clientHeight
         }
       };
       var startCoords = new Coords(evt.clientX, evt.clientY);
@@ -134,7 +134,7 @@
       if (lastTimeout) {
         window.clearTimeout(lastTimeout);
       }
-      lastTimeout = window.setTimeout(fun, window.data.timeout);
+      lastTimeout = window.setTimeout(fun, window.data.TIMEOUT);
     },
 
     /* Корректировка существительных после числительных */

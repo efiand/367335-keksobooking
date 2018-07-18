@@ -22,7 +22,9 @@
   var isLoadData = false;
 
   /* Данные для фильтрации */
-  var houses = Object.keys(window.data.house);
+  var houses = Object.keys(window.data.HouseNames).map(function (elem) {
+    return elem.toLowerCase();
+  });
   var filterOptions = {
     price: {}
   };
@@ -42,7 +44,7 @@
         && doFilterFeature('washer', elem)
         && doFilterFeature('elevator', elem)
         && doFilterFeature('conditioner', elem);
-    }).slice(0, window.data.pinsLimit);
+    }).slice(0, window.data.PINS_LIMIT);
   };
 
   /* Координаты центра (в активном состоянии - середины нижнего края) круглой метки */
@@ -84,7 +86,7 @@
       elem.style.boxShadow = 'none';
     });
     window.form.container.reset();
-    window.form.container.querySelector('.ad-form-header__preview img').src = window.data.defaultAvatar;
+    window.form.container.querySelector('.ad-form-header__preview img').src = window.data.DEFAULT_AVATAR;
     window.upload.resetPhotos();
     map.classList.add('map--faded');
     window.form.container.classList.add('ad-form--disabled');

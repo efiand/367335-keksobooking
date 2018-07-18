@@ -47,12 +47,12 @@
   window.backend = {
     /* Получение данных */
     load: function (loadHandler, errorHandler) {
-      xhrListener(loadHandler, errorHandler, window.data.url.load, 'GET', null);
+      xhrListener(loadHandler, errorHandler, window.data.Url.LOAD, 'GET', null);
     },
 
     /* Отправка данных */
     save: function (data, loadHandler, errorHandler) {
-      xhrListener(loadHandler, errorHandler, window.data.url.save, 'POST', data);
+      xhrListener(loadHandler, errorHandler, window.data.Url.SAVE, 'POST', data);
     }
   };
 })();

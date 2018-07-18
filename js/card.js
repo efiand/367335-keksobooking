@@ -11,7 +11,7 @@
         var selectorToContent = {
           'popup__title': data.offer.title,
           'popup__text--address': data.offer.address,
-          'popup__type': window.data.house[data.offer.type],
+          'popup__type': window.data.HouseNames[data.offer.type.toUpperCase()],
           'popup__text--capacity': data.offer.rooms && data.offer.guests ? window.utils.numDecline(data.offer.rooms, 'комната', 'комнаты', 'комнат') + ' для ' + window.utils.numDecline(data.offer.guests, 'гостя', 'гостей', 'гостей') + '.' : '',
           'popup__text--time': data.offer.checkin !== '0:00' && data.offer.checkout !== '0:00' ? 'Заезд после ' + data.offer.checkin + ', выезд до ' + data.offer.checkout + '.' : '',
           'popup__description': data.offer.description,
@@ -53,7 +53,7 @@
           }
         });
 
-        announcement.querySelector('.popup__avatar').src = data.author.avatar || window.data.defaultAvatar;
+        announcement.querySelector('.popup__avatar').src = data.author.avatar || window.data.DEFAULT_AVATAR;
       }
       return announcement;
     }
