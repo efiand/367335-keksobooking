@@ -29,49 +29,50 @@
   };
 
   /* Получение изображений */
-  var showPictures = function (field, previewNodeClass, parentNodeClass) {
-    var isPicLoaded = false;
-    var getData = function (file, previewImg, isMultiply) {
-      isMultiply = isMultiply || false;
-      var fileName = file.name.toLowerCase();
-      var matches = FILE_TYPES.some(function (it) {
-        return fileName.endsWith(it);
-      });
-      if (matches) {
-        var reader = new FileReader();
-        var picLoadHandler = function () {
-          previewImg.src = reader.result;
-          if (isMultiply) {
-            if (isFirstUpload) {
-              var node = parent.querySelector('.' + previewNodeClass);
-              prepareImg(node, previewImg);
-              if (field.files.length > 1) {
-                node.style.cursor = 'move';
-              }
-              isFirstUpload = false;
-            } else {
-              var block = document.createElement('div');
-              block.classList.add(previewNodeClass);
-              prepareImg(block, previewImg);
-              block.style.cursor = 'move';
-              parent.appendChild(block);
+  var getData = function (file, previewImg, isMultiply, isPicLoaded,
+      previewNodeClass, field, parent) {
+    isMultiply = isMultiply || false;
+    var fileName = file.name.toLowerCase();
+    var matches = FILE_TYPES.some(function (it) {
+      return fileName.endsWith(it);
+    });
+    if (matches) {
+      var reader = new FileReader();
+      var picLoadHandler = function () {
+        previewImg.src = reader.result;
+        if (isMultiply) {
+          if (isFirstUpload) {
+            var node = parent.querySelector('.' + previewNodeClass);
+            prepareImg(node, previewImg);
+            if (field.files.length > 1) {
+              node.style.cursor = 'move';
             }
+            isFirstUpload = false;
+          } else {
+            var block = document.createElement('div');
+            block.classList.add(previewNodeClass);
+            prepareImg(block, previewImg);
+            block.style.cursor = 'move';
+            parent.appendChild(block);
           }
-          isPicLoaded = true;
-        };
-        reader.addEventListener('load', picLoadHandler);
-        reader.readAsDataURL(file);
-        if (isPicLoaded) {
-          reader.removeEventListener('load', picLoadHandler);
         }
+        isPicLoaded = true;
+      };
+      reader.addEventListener('load', picLoadHandler);
+      reader.readAsDataURL(file);
+      if (isPicLoaded) {
+        reader.removeEventListener('load', picLoadHandler);
       }
-    };
+    }
+  };
 
+  var showPictures = function (field, previewNodeClass, parentNodeClass) {
     if (previewNodeClass === parentNodeClass) {
-      getData(field.files[0], document.querySelector('.' + previewNodeClass + ' img'));
+      getData(field.files[0], document.querySelector('.' + previewNodeClass + ' img'),
+          false, false, previewNodeClass, field);
     } else {
       resetPhotos();
-      var parent = document.querySelector('.' + parentNodeClass);
+
       Array.from(field.files).forEach(function (elem) {
         var img = document.createElement('img');
         img.style.height = '70px';
@@ -80,10 +81,12 @@
         img.style.left = '50%';
         img.style.transform = 'translateX(-50%)';
         img.style.pointerEvents = 'none';
-        getData(elem, img, true);
+        getData(elem, img, true, false, previewNodeClass,
+            field, document.querySelector('.' + parentNodeClass));
       });
     }
   };
+
   var photosChangeHandler = function () {
     showPictures(photosField, 'ad-form__photo', 'ad-form__photo-container');
   };

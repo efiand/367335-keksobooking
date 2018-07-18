@@ -30,14 +30,17 @@
   };
   var doFilter = function (data, options) {
     var doFilterFeature = function (feature, featureData) {
-      return options.features.indexOf(feature) > -1 ? featureData.offer.features.indexOf(feature) > -1 : featureData;
+      return options.features.indexOf(feature) > -1
+        ? featureData.offer.features.indexOf(feature) > -1 : featureData;
     };
     return data.filter(function (elem) {
       return options.type.indexOf(elem.offer.type) > -1
         && elem.offer.price >= options.price.min
         && elem.offer.price < options.price.max
-        && (options.rooms < 0 ? (elem.offer.rooms >= 0) : (elem.offer.rooms === options.rooms))
-        && (options.guests < 0 ? (elem.offer.guests >= 0) : (elem.offer.guests === options.guests))
+        && (options.rooms < 0
+          ? (elem.offer.rooms >= 0) : (elem.offer.rooms === options.rooms))
+        && (options.guests < 0
+          ? (elem.offer.guests >= 0) : (elem.offer.guests === options.guests))
         && doFilterFeature('wifi', elem)
         && doFilterFeature('dishwasher', elem)
         && doFilterFeature('parking', elem)
@@ -86,7 +89,8 @@
       elem.style.boxShadow = 'none';
     });
     window.form.container.reset();
-    window.form.container.querySelector('.ad-form-header__preview img').src = window.data.DEFAULT_AVATAR;
+    window.form.container.querySelector('.ad-form-header__preview img').src =
+      window.data.DEFAULT_AVATAR;
     window.upload.resetPhotos();
     map.classList.add('map--faded');
     window.form.container.classList.add('ad-form--disabled');
@@ -106,21 +110,23 @@
     addPinCoords();
   };
 
-  /* Смена фильтра */
-  var renderFilteredPens = function (data, options) {
-    /* Выбор между любым значением и определённым */
-    var chooseAnyOrDefinite = function (value) {
-      return value === 'any' ? -1 : parseInt(value, 10);
-    };
+  /* Выбор между любым значением и определённым */
+  var chooseAnyOrDefinite = function (value) {
+    return value === 'any' ? -1 : parseInt(value, 10);
+  };
 
+  var valueToMax = {
+    'low': 'MIDDLE',
+    'middle': 'HIGH'
+  };
+
+  /* Смена фильтра */
+  var renderFilteredPins = function (data, options) {
     var price = filterPrice.value;
-    var valueToMax = {
-      'low': 'MIDDLE',
-      'middle': 'HIGH'
-    };
 
     options.type = (filterHouse.value === 'any') ? houses : [filterHouse.value];
-    options.price.min = price === 'middle' || price === 'high' ? window.data.Price[price.toUpperCase()] : 0;
+    options.price.min = price === 'middle' || price === 'high'
+      ? window.data.Price[price.toUpperCase()] : 0;
     options.price.max = window.data.Price[valueToMax[price] || 'MAX'];
     options.rooms = chooseAnyOrDefinite(filterRooms.value);
     options.guests = chooseAnyOrDefinite(filterGuests.value);
@@ -134,10 +140,11 @@
 
     window.pin.render(doFilter(data, options));
   };
+
   var fieldsHandler = function (elem, data, options) {
     elem.addEventListener('change', function () {
       window.utils.debounce(function () {
-        renderFilteredPens(data, options);
+        renderFilteredPins(data, options);
       });
     });
   };
@@ -146,7 +153,7 @@
   var loadHandler = function (data) {
 
     /* Генерация разметки меток и объявлений */
-    renderFilteredPens(data, filterOptions, true);
+    renderFilteredPins(data, filterOptions, true);
 
     isLoadData = true;
     setActiveState();
