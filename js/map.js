@@ -108,30 +108,22 @@
 
   /* Смена фильтра */
   var renderFilteredPens = function (data, options) {
+    /* Выбор между любым значением и определённым */
+    var chooseAnyOrDefinite = function (value) {
+      return value === 'any' ? -1 : parseInt(value, 10);
+    };
+
+    var price = filterPrice.value;
+    var valueToMax = {
+      'low': 'MIDDLE',
+      'middle': 'HIGH'
+    };
+
     options.type = (filterHouse.value === 'any') ? houses : [filterHouse.value];
-
-    options.price.min = 0;
-    if (filterPrice.value === 'middle') {
-      options.price.min = window.data.Price.MIDDLE;
-    } else if (filterPrice.value === 'high') {
-      options.price.min = window.data.Price.HIGH;
-    }
-    options.price.max = window.data.Price.MAX;
-    if (filterPrice.value === 'middle') {
-      options.price.max = window.data.Price.HIGH;
-    } else if (filterPrice.value === 'low') {
-      options.price.max = window.data.Price.MIDDLE;
-    }
-
-    options.rooms = -1;
-    if (filterRooms.value !== 'any') {
-      options.rooms = parseInt(filterRooms.value, 10);
-    }
-
-    options.guests = -1;
-    if (filterGuests.value !== 'any') {
-      options.guests = parseInt(filterGuests.value, 10);
-    }
+    options.price.min = price === 'middle' || price === 'high' ? window.data.Price[price.toUpperCase()] : 0;
+    options.price.max = window.data.Price[valueToMax[price] || 'MAX'];
+    options.rooms = chooseAnyOrDefinite(filterRooms.value);
+    options.guests = chooseAnyOrDefinite(filterGuests.value);
 
     options.features = [];
     filterFeatures.forEach(function (elem) {
