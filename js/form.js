@@ -10,7 +10,7 @@
   var houseTypeChangeHandler = function () {
     var price = window.data.HouseMinPrices[houseType.value.toUpperCase()];
     priceField.min = parseInt(price.replace(/ /g, ''), 10);
-    priceField.placeholder = priceField.min;
+    priceField.placeholder = price;
   };
 
   /* Соответствие комнат и мест */
