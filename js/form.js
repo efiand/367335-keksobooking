@@ -7,15 +7,9 @@
   var houseType = adForm.querySelector('#type');
   var priceField = adForm.querySelector('#price');
 
-  /* Соответствие типа и цены */
-  var minPrices = {
-    bungalo: 0,
-    flat: 1000,
-    house: 5000,
-    palace: 10000
-  };
   var houseTypeChangeHandler = function () {
-    priceField.min = minPrices[houseType.value];
+    var price = window.data.HouseMinPrices[houseType.value.toUpperCase()];
+    priceField.min = parseInt(price.replace(/ /g, ''), 10);
     priceField.placeholder = priceField.min;
   };
 
