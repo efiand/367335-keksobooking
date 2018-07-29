@@ -64,7 +64,7 @@
     errorHandler: function (error) {
       var node = document.querySelector('.error');
       if (node) {
-        node.classList.remove('hodden');
+        node.classList.remove('hidden');
       } else {
         node = document.createElement('div');
         node.classList.add('error');
